@@ -40,12 +40,14 @@ export function VoteWizard({
   concejales,
   turnstileSiteKey,
   alreadyVoted,
+  allowRepeatVotes = false,
   isOpen,
 }: {
   intendentes: Candidate[];
   concejales: Candidate[];
   turnstileSiteKey: string;
   alreadyVoted: boolean;
+  allowRepeatVotes?: boolean;
   isOpen: boolean;
 }) {
   const [step, setStep] = useState<Step>(alreadyVoted ? "done" : "verify");
@@ -95,7 +97,7 @@ export function VoteWizard({
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || "No se pudo verificar.");
-        if (data.code === "already_voted") setStep("done");
+        if (data.code === "already_voted" && !allowRepeatVotes) setStep("done");
         return;
       }
       setToken(data.token);
@@ -172,6 +174,11 @@ export function VoteWizard({
 
   return (
     <div className={showBar ? "pb-28" : ""}>
+      {allowRepeatVotes ? (
+        <p className="mb-6 rounded-xl border border-brand/20 bg-brand-soft px-4 py-3 text-sm">
+          Modo ensayo: se puede votar más de una vez. El padrón sigue activo.
+        </p>
+      ) : null}
       {step !== "done" ? (
         <ol className="mb-8 flex gap-2">
           {STEPS.map((label, i) => {
@@ -359,16 +366,34 @@ export function VoteWizard({
               </motion.span>
               <h1 className="text-2xl font-semibold tracking-tight">Listo, quedó registrado</h1>
               <p className="text-muted">
-                Gracias. Esta cédula ya no puede volver a votar en esta encuesta.
+                {allowRepeatVotes
+                  ? "Quedó cargado. En modo ensayo esta cédula puede volver a votar."
+                  : "Gracias. Esta cédula ya no puede volver a votar en esta encuesta."}
               </p>
               <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
                 <a href="/resultados" className="btn-primary">
                   Ver resultados
                 </a>
-                <button type="button" onClick={() => void share()} className="btn-secondary gap-2">
-                  <Share2 className="h-4 w-4" />
-                  {copied ? "Enlace copiado" : "Invitá a un vecino"}
-                </button>
+                {allowRepeatVotes ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStep("verify");
+                      setIntendente("");
+                      setConcejal("");
+                      setToken("");
+                      setError("");
+                    }}
+                    className="btn-secondary"
+                  >
+                    Votar de nuevo
+                  </button>
+                ) : (
+                  <button type="button" onClick={() => void share()} className="btn-secondary gap-2">
+                    <Share2 className="h-4 w-4" />
+                    {copied ? "Enlace copiado" : "Invitá a un vecino"}
+                  </button>
+                )}
               </div>
             </div>
           )}

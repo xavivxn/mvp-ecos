@@ -39,6 +39,7 @@ Los markdown del padrón van en `data/padron/` y **no se commitean**. Si rotás 
 - `PADRON_MODE=mock|db`
 - `APP_RPC_SECRET` debe coincidir con el hash guardado en `private.app_config`
 - Turnstile es opcional en mock. En db conviene activarlo.
+- `ALLOW_REPEAT_VOTES=true` suelta el candado de una cédula = un voto (cookie, unique y rate limits). El padrón y la fecha siguen valiendo. Apagar antes de lo oficial y borrar `votes` + `voter_registry`.
 
 ## Deploy a Vercel
 

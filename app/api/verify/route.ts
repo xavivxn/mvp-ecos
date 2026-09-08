@@ -24,23 +24,27 @@ export async function POST(request: NextRequest) {
   }
 
   const ip = clientIp(request);
-  const allowed = await rpc<boolean>("app_check_rate_limit", {
-    p_key: `verify:ip:${hashIp(ip)}`,
-    p_limit: 10,
-    p_window_seconds: 600,
-  });
-  if (!allowed) {
-    return jsonError("Demasiados intentos. Probá de nuevo en unos minutos.", 429);
-  }
-
   const cedulaHash = hashCedula(parsed.data.cedula);
-  const cedulaAllowed = await rpc<boolean>("app_check_rate_limit", {
-    p_key: `verify:ci:${cedulaHash}`,
-    p_limit: 5,
-    p_window_seconds: 3600,
-  });
-  if (!cedulaAllowed) {
-    return jsonError("Demasiados intentos. Probá de nuevo en unos minutos.", 429);
+  const allowRepeat = env.allowRepeatVotes;
+
+  if (!allowRepeat) {
+    const allowed = await rpc<boolean>("app_check_rate_limit", {
+      p_key: `verify:ip:${hashIp(ip)}`,
+      p_limit: 10,
+      p_window_seconds: 600,
+    });
+    if (!allowed) {
+      return jsonError("Demasiados intentos. Probá de nuevo en unos minutos.", 429);
+    }
+
+    const cedulaAllowed = await rpc<boolean>("app_check_rate_limit", {
+      p_key: `verify:ci:${cedulaHash}`,
+      p_limit: 5,
+      p_window_seconds: 3600,
+    });
+    if (!cedulaAllowed) {
+      return jsonError("Demasiados intentos. Probá de nuevo en unos minutos.", 429);
+    }
   }
 
   const human = await verifyTurnstile(parsed.data.turnstileToken, ip);
@@ -57,12 +61,14 @@ export async function POST(request: NextRequest) {
   if (!election) return jsonError("No hay una encuesta activa.", 503);
   if (!election.isOpen) return jsonError("La encuesta está cerrada.", 403, "closed");
 
-  const already = await rpc<boolean>("app_has_voted", {
-    p_election_id: election.id,
-    p_cedula_hash: cedulaHash,
-  });
-  if (already) {
-    return jsonError("Esta cédula ya registró su intención de voto.", 409, "already_voted");
+  if (!allowRepeat) {
+    const already = await rpc<boolean>("app_has_voted", {
+      p_election_id: election.id,
+      p_cedula_hash: cedulaHash,
+    });
+    if (already) {
+      return jsonError("Esta cédula ya registró su intención de voto.", 409, "already_voted");
+    }
   }
 
   const padron = await lookupPadron(

@@ -37,6 +37,10 @@ export const env = {
   get allowedDistrict() {
     return process.env.PADRON_ALLOWED_DISTRICT?.toUpperCase() || "";
   },
+  get allowRepeatVotes() {
+    const value = process.env.ALLOW_REPEAT_VOTES?.trim().toLowerCase();
+    return value === "true" || value === "1";
+  },
 };
 
 export const publicEnv = {

@@ -5,6 +5,7 @@ import { hashIp, hashUa } from "@/lib/security/hash";
 import { verifyVoteToken } from "@/lib/security/token";
 import { verifyTurnstile } from "@/lib/security/turnstile";
 import { clientIp, jsonError } from "@/lib/security/request";
+import { env } from "@/lib/env";
 
 export const runtime = "nodejs";
 
@@ -22,13 +23,17 @@ export async function POST(request: NextRequest) {
   }
 
   const ip = clientIp(request);
-  const allowed = await rpc<boolean>("app_check_rate_limit", {
-    p_key: `vote:ip:${hashIp(ip)}`,
-    p_limit: 8,
-    p_window_seconds: 600,
-  });
-  if (!allowed) {
-    return jsonError("Demasiados intentos. Probá de nuevo en unos minutos.", 429);
+  const allowRepeat = env.allowRepeatVotes;
+
+  if (!allowRepeat) {
+    const allowed = await rpc<boolean>("app_check_rate_limit", {
+      p_key: `vote:ip:${hashIp(ip)}`,
+      p_limit: 8,
+      p_window_seconds: 600,
+    });
+    if (!allowed) {
+      return jsonError("Demasiados intentos. Probá de nuevo en unos minutos.", 429);
+    }
   }
 
   const human = await verifyTurnstile(parsed.data.turnstileToken, ip);
@@ -48,6 +53,7 @@ export async function POST(request: NextRequest) {
     p_concejal: parsed.data.concejal,
     p_ip_hash: hashIp(ip),
     p_ua_hash: hashUa(request.headers.get("user-agent") || "unknown"),
+    p_allow_repeat: allowRepeat,
   });
 
   if (!result?.ok) {
@@ -64,11 +70,13 @@ export async function POST(request: NextRequest) {
     return jsonError(message, status, result?.code);
   }
 
-  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
   const response = Response.json({ ok: true });
-  response.headers.append(
-    "Set-Cookie",
-    `ecos_voted=1; Path=/; HttpOnly; SameSite=Strict; Max-Age=31536000${secure}`,
-  );
+  if (!allowRepeat) {
+    const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+    response.headers.append(
+      "Set-Cookie",
+      `ecos_voted=1; Path=/; HttpOnly; SameSite=Strict; Max-Age=31536000${secure}`,
+    );
+  }
   return response;
 }
