@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ecos
 
-## Getting Started
+Plataforma web de intención de voto para las municipales 2026. Mobile-first, un voto por cédula, resultados en vivo.
 
-First, run the development server:
+## Qué hace
+
+- Valida al votante con cédula (y fecha de nacimiento) antes de permitir el voto.
+- En el MVP (`PADRON_MODE=mock`) la consulta al padrón está simulada para poder desplegar y probar el flujo.
+- En producción (`PADRON_MODE=live`) consulta `https://padron.tsje.gov.py`. Ese sitio está detrás de Sucuri: un `fetch` directo desde servidor responde 403. La app reutiliza una cookie WAF y, si hace falta, abre Chromium local (`PADRON_BROWSER=1`).
+- Política estricta: si el padrón no responde, no hay voto.
+- Concejalía por lista. Intendencia por candidato. Opciones de blanco y nulo.
+- El voto es secreto: el hash de cédula vive en `voter_registry`, separado de `votes`.
+
+## Stack
+
+Next.js 16 · Tailwind v4 · Motion · Supabase (Postgres + RLS deny-all + RPCs) · Vercel.
+
+## Desarrollo
 
 ```bash
+cp .env.example .env.local
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Cédula de prueba: cualquier número de 5 a 10 dígitos, excepto `9999999` (rechazada a propósito). Fecha de nacimiento cualquiera.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run spike:padron   # parser + conectividad TSJE
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Variables importantes
 
-## Learn More
+- `PADRON_MODE=mock|live`
+- `APP_RPC_SECRET` debe coincidir con el hash guardado en `private.app_config`
+- Turnstile es opcional en mock. En live conviene activarlo.
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy a Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npx vercel login
+npx vercel env add SUPABASE_URL
+npx vercel env add SUPABASE_ANON_KEY
+npx vercel env add APP_RPC_SECRET
+npx vercel env add CEDULA_HMAC_SECRET
+npx vercel env add VOTE_TOKEN_SECRET
+npx vercel env add PADRON_MODE
+npx vercel --prod
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Los valores están en `.env.local`. `PADRON_MODE=mock` para el MVP.
 
-## Deploy on Vercel
+## Lanzamiento con candidatos reales
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Reemplazar filas en `public.candidates` y `public.elections`.
+2. Setear `district_code` de la elección y `PADRON_ALLOWED_DISTRICT`.
+3. Pasar `PADRON_MODE=live`, configurar Turnstile y probar Chromium/cookie WAF.
+4. Desplegar en Vercel con las env vars de producción.
