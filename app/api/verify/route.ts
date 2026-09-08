@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
   const cedulaHash = hashCedula(parsed.data.cedula);
   const cedulaAllowed = await rpc<boolean>("app_check_rate_limit", {
     p_key: `verify:ci:${cedulaHash}`,
-    p_limit: 3,
+    p_limit: 5,
     p_window_seconds: 3600,
   });
   if (!cedulaAllowed) {
