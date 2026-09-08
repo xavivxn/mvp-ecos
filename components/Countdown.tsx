@@ -33,13 +33,18 @@ export function Countdown({ target }: { target: string }) {
   ] as const;
 
   return (
-    <div className="grid grid-cols-4 gap-2">
-      {items.map(([value, label]) => (
-        <div key={label} className="rounded-2xl border border-line bg-ink-2/70 px-2 py-3 text-center">
-          <div className="font-display text-2xl tabular-nums sm:text-3xl">{now ? pad(value) : "--"}</div>
-          <div className="mt-1 text-[11px] uppercase tracking-[0.18em] text-cream-dim">{label}</div>
-        </div>
-      ))}
+    <div>
+      <p className="mono mb-2 text-[11px] uppercase tracking-[0.14em] text-muted">Cierra en</p>
+      <div className="grid grid-cols-4 gap-2">
+        {items.map(([value, label]) => (
+          <div key={label} className="rounded-xl bg-brand-soft px-2 py-3 text-center">
+            <div className="mono text-2xl tabular-nums text-brand-strong sm:text-3xl">
+              {now ? pad(value) : "--"}
+            </div>
+            <div className="mt-1 text-[11px] uppercase tracking-[0.14em] text-muted">{label}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

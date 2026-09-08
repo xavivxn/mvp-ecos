@@ -1,35 +1,58 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #10261c;
-  --ink-2: #173528;
-  --forest: #1f5a40;
-  --leaf: #3d9b6d;
-  --gold: #e4c27a;
-  --gold-2: #f3dfb1;
-  --cream: #f4efe4;
-  --cream-dim: #d8d0c2;
-  --line: rgba(244, 239, 228, 0.12);
+  --bg: #ffffff;
+  --surface: #f5faf7;
+  --surface-2: #eaf5ee;
+  --ink: #0e1b14;
+  --muted: #5b6b62;
+  --line: #dce7df;
+  --brand: #128a4a;
+  --brand-strong: #0b6b38;
+  --brand-soft: #ddf3e5;
+  --danger: #b42318;
+  --danger-soft: #fee4e2;
+  --on-brand: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1f17;
+    --surface: #10291f;
+    --surface-2: #163326;
+    --ink: #eaf5ee;
+    --muted: #9db5a8;
+    --line: rgba(234, 245, 238, 0.12);
+    --brand: #3dcb7e;
+    --brand-strong: #6ee7a2;
+    --brand-soft: rgba(61, 203, 126, 0.14);
+    --danger: #f97066;
+    --danger-soft: rgba(249, 112, 102, 0.16);
+    --on-brand: #0b1f17;
+  }
 }
 
 @theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-ink: var(--ink);
-  --color-ink-2: var(--ink-2);
-  --color-forest: var(--forest);
-  --color-leaf: var(--leaf);
-  --color-gold: var(--gold);
-  --color-gold-2: var(--gold-2);
-  --color-cream: var(--cream);
-  --color-cream-dim: var(--cream-dim);
+  --color-muted: var(--muted);
   --color-line: var(--line);
-  --font-sans: var(--font-sans);
-  --font-display: var(--font-display);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-on-brand: var(--on-brand);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
 html,
 body {
-  background: var(--ink);
-  color: var(--cream);
+  background: var(--bg);
+  color: var(--ink);
 }
 
 body {
@@ -37,17 +60,94 @@ body {
   min-height: 100%;
 }
 
-.font-display {
-  font-family: var(--font-display), Georgia, serif;
+.mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
 }
 
-.grain {
-  background-image: radial-gradient(rgba(244, 239, 228, 0.05) 0.6px, transparent 0.6px);
-  background-size: 4px 4px;
+.card {
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--bg);
+  box-shadow: 0 1px 2px rgba(14, 27, 20, 0.04);
 }
 
-.glow-ring {
-  box-shadow: 0 0 0 1px rgba(228, 194, 122, 0.28), 0 18px 50px rgba(0, 0, 0, 0.28);
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 999px;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.btn-primary {
+  display: inline-flex;
+  height: 3rem;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background: var(--brand);
+  padding: 0 1.25rem;
+  font-weight: 600;
+  color: var(--on-brand);
+  transition: filter 160ms ease;
+}
+
+.btn-primary:hover {
+  filter: brightness(0.96);
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+}
+
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-ghost:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  height: 3rem;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  padding: 0 1.25rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.btn-ghost {
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  padding: 0 0.75rem;
+  color: var(--muted);
+}
+
+.field {
+  height: 3rem;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  padding: 0 0.875rem;
+  color: var(--ink);
+  outline: none;
+}
+
+.field:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
 }
 
 @media (prefers-reduced-motion: reduce) {

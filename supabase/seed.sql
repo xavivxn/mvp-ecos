@@ -2,8 +2,8 @@
 insert into public.elections (id, name, city, district_code, opens_at, closes_at, is_active)
 values (
   '00000000-0000-4000-8000-000000000001',
-  'Municipales 2026 – Ciudad Demo',
-  'Ciudad Demo',
+  'Elecciones Municipales 2026',
+  'Yaguarón',
   null,
   now() - interval '1 day',
   timestamptz '2026-10-04 23:59:59-03',

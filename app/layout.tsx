@@ -1,40 +1,42 @@
-import { Fraunces, Manrope } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { VisitBeacon } from "@/components/VisitBeacon";
 
-const display = Fraunces({
+const geistSans = Geist({
   subsets: ["latin"],
-  variable: "--font-display",
-  weight: ["400", "600", "700"],
+  variable: "--font-geist-sans",
 });
 
-const sans = Manrope({
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-geist-mono",
 });
 
 export const metadata: Metadata = {
-  title: "Ecos · Intención de voto",
+  title: "Ecos · Elecciones Municipales 2026 · Yaguarón",
   description:
-    "Encuesta ciudadana de intención de voto para las municipales 2026. No es un resultado oficial del TSJE.",
+    "Herramienta ciudadana de intención de voto para las Elecciones Municipales 2026 en Yaguarón. No es un cómputo oficial del TSJE.",
   applicationName: "Ecos",
   icons: { icon: "/icon.svg" },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#10261c",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
+    { media: "(prefers-color-scheme: dark)", color: "#0B1F17" },
+  ],
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es" className={`${display.variable} ${sans.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-ink text-cream">
+    <html lang="es" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+      <body className="flex min-h-full flex-col bg-bg text-ink">
         <VisitBeacon />
         <SiteHeader />
         <main className="flex-1">{children}</main>

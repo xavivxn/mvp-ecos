@@ -21,7 +21,7 @@ function mockLookup(cedula: string): PadronLookup {
   return {
     ok: true,
     eligible: true,
-    districtCode: (process.env.PADRON_MOCK_DISTRICT ?? "ASUNCION").toUpperCase(),
+    districtCode: (process.env.PADRON_MOCK_DISTRICT ?? "YAGUARON").toUpperCase(),
     source: "mock",
   };
 }

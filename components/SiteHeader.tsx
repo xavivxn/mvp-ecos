@@ -1,27 +1,27 @@
 import Link from "next/link";
+import { Logo } from "./Logo";
+import { LiveChip } from "./LiveChip";
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-ink/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2 min-h-11">
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-gold text-ink font-display font-semibold">
-            E
-          </span>
-          <span className="font-display text-xl tracking-tight">Ecos</span>
-        </Link>
-        <nav className="flex items-center gap-1 text-sm">
+    <header className="sticky top-0 z-40 border-b border-line bg-bg/90 backdrop-blur-md">
+      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+        <Logo />
+        <nav className="flex items-center gap-1">
           <Link
-            href="/votar"
-            className="min-h-11 rounded-full px-4 py-2 text-cream-dim hover:text-cream"
+            href="/#como-funciona"
+            className="btn-ghost hidden text-sm md:inline-flex"
           >
-            Votar
+            Cómo funciona
           </Link>
-          <Link
-            href="/resultados"
-            className="min-h-11 rounded-full px-4 py-2 text-cream-dim hover:text-cream"
-          >
+          <Link href="/resultados" className="btn-ghost hidden text-sm sm:inline-flex">
             Resultados
+          </Link>
+          <span className="hidden sm:inline-flex">
+            <LiveChip />
+          </span>
+          <Link href="/votar" className="btn-primary h-10 px-4 text-sm">
+            Votar
           </Link>
         </nav>
       </div>

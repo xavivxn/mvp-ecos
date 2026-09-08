@@ -13,7 +13,7 @@ export default async function VotarPage() {
   const jar = await cookies();
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
+    <div className="mx-auto max-w-xl px-4 py-8">
       <VoteWizard
         intendentes={candidates.filter((c) => c.race === "intendente")}
         concejales={candidates.filter((c) => c.race === "concejal_lista")}

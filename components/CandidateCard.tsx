@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import type { Candidate } from "@/lib/types";
 
 function initials(name: string) {
@@ -19,29 +20,47 @@ export function CandidateCard({
   selected: boolean;
   onSelect: () => void;
 }) {
+  const listBadge = candidate.race === "concejal_lista" ? candidate.name : null;
+
   return (
     <button
       type="button"
       onClick={onSelect}
-      className={`flex min-h-16 w-full items-center gap-3 rounded-2xl border px-3 py-3 text-left transition ${
+      aria-pressed={selected}
+      className={`flex min-h-16 w-full items-center gap-3 rounded-xl border px-3 py-3 text-left transition ${
         selected
-          ? "border-gold bg-gold/10 glow-ring"
-          : "border-line bg-ink-2/60 hover:border-gold/40"
+          ? "border-brand bg-brand-soft"
+          : "border-line bg-bg hover:border-brand/40"
       }`}
     >
       <span
-        className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-sm font-semibold text-cream"
+        className="grid h-11 w-11 shrink-0 place-items-center rounded-lg text-sm font-semibold text-white"
         style={{ background: candidate.color }}
       >
         {initials(candidate.name)}
       </span>
-      <span className="min-w-0">
-        <span className="block font-medium leading-tight">{candidate.name}</span>
-        <span className="block text-sm text-cream-dim">{candidate.party}</span>
+      <span className="min-w-0 flex-1">
+        {listBadge ? (
+          <>
+            <span className="chip mb-1 bg-surface-2 mono text-[10px] uppercase tracking-wider text-muted">
+              {listBadge}
+            </span>
+            <span className="block font-medium leading-tight">{candidate.party}</span>
+          </>
+        ) : (
+          <>
+            <span className="block font-medium leading-tight">{candidate.name}</span>
+            <span className="block text-sm text-muted">{candidate.party}</span>
+          </>
+        )}
       </span>
       <span
-        className={`ml-auto h-5 w-5 rounded-full border ${selected ? "border-gold bg-gold" : "border-cream-dim"}`}
-      />
+        className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border ${
+          selected ? "border-brand bg-brand text-on-brand" : "border-line"
+        }`}
+      >
+        {selected ? <Check className="h-3 w-3" strokeWidth={3} /> : null}
+      </span>
     </button>
   );
 }

@@ -9,17 +9,19 @@ export default async function ResultadosPage() {
   if (!board) {
     return (
       <section className="mx-auto max-w-xl px-4 py-16 text-center">
-        <h1 className="font-display text-3xl">Sin datos todavía</h1>
-        <p className="mt-3 text-cream-dim">No hay una elección activa configurada.</p>
+        <h1 className="text-2xl font-semibold tracking-tight">Sin datos todavía</h1>
+        <p className="mt-3 text-muted">No hay una elección activa configurada.</p>
       </section>
     );
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
-      <p className="text-sm uppercase tracking-[0.22em] text-gold">{board.election.city}</p>
-      <h1 className="mt-2 font-display text-4xl">{board.election.name}</h1>
-      <p className="mt-3 max-w-2xl text-cream-dim">
+    <div className="mx-auto max-w-5xl px-4 py-8">
+      <p className="mono text-xs uppercase tracking-[0.16em] text-brand-strong">
+        {board.election.city}
+      </p>
+      <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">{board.election.name}</h1>
+      <p className="mt-3 max-w-2xl text-muted">
         Resultados agregados en vivo. El voto es secreto: acá no aparece ninguna cédula.
       </p>
       <div className="mt-8">
