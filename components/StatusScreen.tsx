@@ -4,7 +4,7 @@ import { Ban, CloudOff, ShieldOff, CircleAlert } from "lucide-react";
 const ICONS = {
   closed: Ban,
   not_eligible: ShieldOff,
-  tsje_unavailable: CloudOff,
+  padron_unavailable: CloudOff,
   default: CircleAlert,
 };
 

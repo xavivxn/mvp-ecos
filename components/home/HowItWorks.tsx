@@ -4,13 +4,13 @@ const STEPS = [
   {
     n: "01",
     title: "Verificás",
-    body: "Ingresás tu cédula. Consultamos el padrón del TSJE y no guardamos el número en texto plano.",
+    body: "Ingresás tu cédula y fecha de nacimiento. Las contrastamos con el padrón de Yaguarón y no guardamos el número en texto plano.",
     icon: IdCard,
   },
   {
     n: "02",
     title: "Elegís",
-    body: "Intendencia y una lista de concejalía. También podés votar en blanco o nulo.",
+    body: "Intendencia y una lista de concejalía. También podés votar en blanco.",
     icon: Vote,
   },
   {

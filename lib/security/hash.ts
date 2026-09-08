@@ -13,6 +13,10 @@ export function hashCedula(cedula: string) {
   return hmacHex(env.cedulaHmacSecret, cedula);
 }
 
+export function hashBirthDate(isoDate: string) {
+  return hmacHex(env.cedulaHmacSecret, `dob:${isoDate}`);
+}
+
 export function hashVisitor(id: string) {
   return hmacHex(env.cedulaHmacSecret, `visitor:${id}`);
 }

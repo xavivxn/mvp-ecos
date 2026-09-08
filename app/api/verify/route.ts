@@ -9,7 +9,6 @@ import { lookupPadron } from "@/lib/padron";
 import { env } from "@/lib/env";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   let body: unknown;
@@ -66,12 +65,16 @@ export async function POST(request: NextRequest) {
     return jsonError("Esta cédula ya registró su intención de voto.", 409, "already_voted");
   }
 
-  const padron = await lookupPadron(parsed.data.cedula, cedulaHash);
+  const padron = await lookupPadron(
+    parsed.data.cedula,
+    cedulaHash,
+    parsed.data.fechaNacimiento,
+  );
   if (!padron.ok) {
     return jsonError(
-      "No pudimos consultar el padrón del TSJE en este momento. Intentá más tarde.",
+      "No pudimos consultar el padrón en este momento. Intentá más tarde.",
       503,
-      "tsje_unavailable",
+      "padron_unavailable",
     );
   }
   if (!padron.eligible) {

@@ -6,14 +6,12 @@ type RpcName =
   | "app_get_active_election"
   | "app_list_candidates"
   | "app_has_voted"
-  | "app_get_padron_cache"
-  | "app_upsert_padron_cache"
+  | "app_lookup_padron"
+  | "app_seed_padron_batch"
   | "app_create_session"
   | "app_cast_vote"
   | "app_get_results"
-  | "app_record_visit"
-  | "app_get_waf_cookies"
-  | "app_set_waf_cookies";
+  | "app_record_visit";
 
 export async function rpc<T>(name: RpcName, args: Record<string, unknown> = {}): Promise<T> {
   const { data, error } = await supabaseAdmin().rpc(name, {

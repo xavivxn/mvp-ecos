@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const raceSchema = z.enum(["intendente", "concejal_lista"]);
-export const specialChoiceSchema = z.enum(["blanco", "nulo"]);
+export const specialChoiceSchema = z.enum(["blanco"]);
 
 export const cedulaSchema = z
   .string()

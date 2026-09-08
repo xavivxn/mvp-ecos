@@ -3,7 +3,6 @@ import type { Candidate, ChoiceCount, Election, RawResults } from "@/lib/types";
 
 const SPECIAL: Record<string, { name: string; party: string; color: string }> = {
   blanco: { name: "Voto en blanco", party: "Opción especial", color: "#C4B8A5" },
-  nulo: { name: "Voto nulo", party: "Opción especial", color: "#8C4A4A" },
 };
 
 export type RankedChoice = {
@@ -47,7 +46,7 @@ function rank(counts: ChoiceCount[], candidates: Candidate[], race: Candidate["r
       };
     });
 
-  for (const key of ["blanco", "nulo"] as const) {
+  for (const key of ["blanco"] as const) {
     rows.push({
       id: key,
       name: SPECIAL[key].name,

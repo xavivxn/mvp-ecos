@@ -70,16 +70,12 @@ export function VoteWizard({
   }, [day, month, year]);
 
   const intendenteLabel =
-    intendente === "blanco" || intendente === "nulo"
-      ? intendente === "blanco"
-        ? "Voto en blanco"
-        : "Voto nulo"
+    intendente === "blanco"
+      ? "Voto en blanco"
       : intendentes.find((c) => c.id === intendente)?.name ?? "";
   const concejalLabel =
-    concejal === "blanco" || concejal === "nulo"
-      ? concejal === "blanco"
-        ? "Voto en blanco"
-        : "Voto nulo"
+    concejal === "blanco"
+      ? "Voto en blanco"
       : concejales.find((c) => c.id === concejal)?.name ?? "";
 
   async function verify(e: FormEvent) {
@@ -211,7 +207,7 @@ export function VoteWizard({
               <div>
                 <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Validá tu cédula</h1>
                 <p className="mt-2 text-muted">
-                  Consultamos el padrón nacional para confirmar que estás habilitado.
+                  Contrastamos tu cédula y fecha de nacimiento con el padrón de Yaguarón.
                 </p>
               </div>
               <label className="block">
@@ -269,8 +265,9 @@ export function VoteWizard({
               </button>
               {whyOpen ? (
                 <p className="rounded-xl bg-surface p-3 text-sm text-muted">
-                  La cédula sirve para consultar el padrón del TSJE y para impedir un segundo voto.
-                  No se guarda el número: solo un hash. El voto queda separado de esa verificación.
+                  La cédula y la fecha de nacimiento sirven para confirmar que estás en el padrón
+                  de Yaguarón y para impedir un segundo voto. No se guarda el número: solo un hash.
+                  El voto queda separado de esa verificación.
                 </p>
               ) : null}
               <TurnstileField siteKey={turnstileSiteKey} onToken={setTurnstile} />
@@ -282,7 +279,7 @@ export function VoteWizard({
                       <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-on-brand [animation-delay:-0.1s]" />
                       <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-on-brand" />
                     </span>
-                    Consultando padrón del TSJE…
+                    Validando contra el padrón…
                   </span>
                 ) : (
                   "Validar y continuar"
@@ -303,8 +300,7 @@ export function VoteWizard({
                   onSelect={() => setIntendente(c.id)}
                 />
               ))}
-              <SpecialChoice kind="blanco" selected={intendente === "blanco"} onSelect={() => setIntendente("blanco")} />
-              <SpecialChoice kind="nulo" selected={intendente === "nulo"} onSelect={() => setIntendente("nulo")} />
+              <SpecialChoice selected={intendente === "blanco"} onSelect={() => setIntendente("blanco")} />
             </div>
           )}
 
@@ -320,8 +316,7 @@ export function VoteWizard({
                   onSelect={() => setConcejal(c.id)}
                 />
               ))}
-              <SpecialChoice kind="blanco" selected={concejal === "blanco"} onSelect={() => setConcejal("blanco")} />
-              <SpecialChoice kind="nulo" selected={concejal === "nulo"} onSelect={() => setConcejal("nulo")} />
+              <SpecialChoice selected={concejal === "blanco"} onSelect={() => setConcejal("blanco")} />
             </div>
           )}
 

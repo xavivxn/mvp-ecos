@@ -30,8 +30,8 @@ export default async function HomePage() {
               El pulso de Yaguarón, en números.
             </h1>
             <p className="mt-4 max-w-lg text-muted">
-              Ecos es una herramienta ciudadana de intención de voto. Validamos cédula contra el
-              padrón, un voto por persona, y mostramos quién va liderando.
+              Ecos es una herramienta ciudadana de intención de voto. Validamos cédula y fecha
+              de nacimiento contra el padrón, un voto por persona, y mostramos quién va liderando.
             </p>
             <div className="mt-7 hidden gap-3 sm:flex">
               <Link href="/votar" className="btn-primary">

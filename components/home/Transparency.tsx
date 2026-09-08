@@ -12,8 +12,8 @@ const ITEMS = [
     icon: Lock,
   },
   {
-    title: "Padrón TSJE",
-    body: "Antes de votar se consulta el padrón nacional. Si el TSJE no responde, no se registra el voto.",
+    title: "Padrón de Yaguarón",
+    body: "Antes de votar contrastamos cédula y fecha de nacimiento con el padrón oficial del distrito. Si no figura, no se registra el voto.",
     icon: Landmark,
   },
   {

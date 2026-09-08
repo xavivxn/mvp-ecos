@@ -25,7 +25,8 @@ export const env = {
     return required("VOTE_TOKEN_SECRET");
   },
   get padronMode() {
-    return (process.env.PADRON_MODE === "live" ? "live" : "mock") as "live" | "mock";
+    const mode = process.env.PADRON_MODE;
+    return mode === "db" || mode === "live" ? "db" : "mock";
   },
   get turnstileSecretKey() {
     return process.env.TURNSTILE_SECRET_KEY || "";
@@ -43,6 +44,7 @@ export const publicEnv = {
     return process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
   },
   get padronMode() {
-    return (process.env.PADRON_MODE === "live" ? "live" : "mock") as "live" | "mock";
+    const mode = process.env.PADRON_MODE;
+    return mode === "db" || mode === "live" ? "db" : "mock";
   },
 };
