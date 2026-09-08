@@ -38,18 +38,25 @@ npm run build
 
 ## Deploy a Vercel
 
+En el dashboard del proyecto: **Settings → Environment Variables**. Cargá estas claves para Production y Preview (los valores están en `.env.local`):
+
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `APP_RPC_SECRET`
+- `CEDULA_HMAC_SECRET`
+- `VOTE_TOKEN_SECRET`
+- `PADRON_MODE` (`mock` para el MVP)
+- `PADRON_MOCK_DISTRICT` (`YAGUARON`)
+- `PADRON_MOCK_REJECT` (`9999999`)
+
+Después:
+
 ```bash
 npx vercel login
-npx vercel env add SUPABASE_URL
-npx vercel env add SUPABASE_ANON_KEY
-npx vercel env add APP_RPC_SECRET
-npx vercel env add CEDULA_HMAC_SECRET
-npx vercel env add VOTE_TOKEN_SECRET
-npx vercel env add PADRON_MODE
 npx vercel --prod
 ```
 
-Los valores están en `.env.local`. `PADRON_MODE=mock` para el MVP.
+Sin esas variables el build llega a “Collecting page data” y las API routes no pueden hablar con Supabase.
 
 ## Lanzamiento con candidatos reales
 
