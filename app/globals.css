@@ -154,6 +154,22 @@ body {
   box-shadow: 0 0 0 3px var(--brand-soft);
 }
 
+@keyframes leader-flash {
+  0% {
+    box-shadow: 0 0 0 0 var(--brand-soft);
+  }
+  40% {
+    box-shadow: 0 0 0 6px var(--brand-soft);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.leader-flash {
+  animation: leader-flash 700ms ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

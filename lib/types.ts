@@ -49,6 +49,8 @@ export type ChoiceCount = { choice: string; votes: number };
 export type RawResults = {
   totalVotes: number;
   votesLast24h: number;
+  lastVoteAt: string | null;
+  hourlyActivity: number[];
   uniqueVisitors: number;
   pageViews: number;
   intendente: ChoiceCount[];

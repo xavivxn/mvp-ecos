@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { rpc } from "@/lib/db";
+import { normalizeHourlyActivity } from "@/lib/pulse";
 import type { Candidate, ChoiceCount, Election, RawResults } from "@/lib/types";
 
 const SPECIAL: Record<string, { name: string; party: string; color: string }> = {
@@ -22,6 +23,8 @@ export type BoardData = {
   candidates: Candidate[];
   totalVotes: number;
   votesLast24h: number;
+  lastVoteAt: string | null;
+  hourlyActivity: number[];
   uniqueVisitors: number;
   pageViews: number;
   conversion: number;
@@ -29,6 +32,7 @@ export type BoardData = {
   concejal: RankedChoice[];
   leadIntendente: { leader: RankedChoice | null; margin: number };
   leadConcejal: { leader: RankedChoice | null; margin: number };
+  generatedAt: string;
 };
 
 function rank(counts: ChoiceCount[], candidates: Candidate[], race: Candidate["race"], total: number): RankedChoice[] {
@@ -99,6 +103,8 @@ export const getBoard = cache(async function getBoard(): Promise<BoardData | nul
     candidates,
     totalVotes: raw.totalVotes,
     votesLast24h: raw.votesLast24h,
+    lastVoteAt: typeof raw.lastVoteAt === "string" ? raw.lastVoteAt : raw.lastVoteAt ? String(raw.lastVoteAt) : null,
+    hourlyActivity: normalizeHourlyActivity(raw.hourlyActivity),
     uniqueVisitors: raw.uniqueVisitors,
     pageViews: raw.pageViews,
     conversion: raw.uniqueVisitors ? (raw.totalVotes / raw.uniqueVisitors) * 100 : 0,
@@ -106,5 +112,6 @@ export const getBoard = cache(async function getBoard(): Promise<BoardData | nul
     concejal,
     leadIntendente: lead(intendente),
     leadConcejal: lead(concejal),
+    generatedAt: new Date().toISOString(),
   };
 });

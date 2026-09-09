@@ -1,7 +1,8 @@
-import { LiveCard } from "@/components/home/LiveCard";
+import { HomePulse } from "@/components/home/HomePulse";
 import { getBoard } from "@/lib/results";
+import type { ReactNode } from "react";
 
-export async function HomeLiveCard() {
+export async function HomeLiveCard({ children }: { children: ReactNode }) {
   const board = await getBoard();
-  return <LiveCard board={board} />;
+  return <HomePulse initial={board}>{children}</HomePulse>;
 }

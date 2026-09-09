@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/Skeleton";
+import { HomeKpisSkeleton, SparklineSkeleton } from "@/components/home/HomeSkeletons";
 
 function RaceSkeleton() {
   return (
@@ -43,10 +44,13 @@ export default function ResultadosLoading() {
       <Skeleton className="mt-3 h-9 w-72 sm:h-10" />
       <Skeleton className="mt-3 h-12 w-full max-w-xl" />
       <div className="mt-8 space-y-6">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Skeleton className="h-6 w-16 rounded-full" />
           <Skeleton className="h-3 w-36" />
+          <Skeleton className="h-3 w-32" />
         </div>
+        <SparklineSkeleton />
+        <HomeKpisSkeleton className="" />
         <div className="grid grid-cols-2 gap-1 rounded-xl bg-surface p-1 lg:hidden">
           <Skeleton className="h-10 rounded-lg" />
           <Skeleton className="h-10 rounded-lg" />

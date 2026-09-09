@@ -1,15 +1,18 @@
 import Link from "next/link";
 import type { BoardData } from "@/lib/results";
+import { ActivitySparkline } from "@/components/home/ActivitySparkline";
 import { CandidatePhoto } from "@/components/CandidatePhoto";
+import { CountUp } from "@/components/CountUp";
 import { LiveChip } from "@/components/LiveChip";
 import { partySurface } from "@/lib/color";
 import { partyAbbr } from "@/lib/party";
+import { formatLastVote, isPulseHot, cssPct } from "@/lib/pulse";
 
 function shortName(name: string) {
   return name.replace(/^Ing\.\s+/i, "");
 }
 
-export function LiveCard({ board }: { board: BoardData | null }) {
+export function LiveCard({ board, now }: { board: BoardData | null; now?: number }) {
   const leader = board?.leadIntendente.leader;
   const lineup = (board?.candidates ?? [])
     .filter((c) => c.race === "intendente")
@@ -18,13 +21,15 @@ export function LiveCard({ board }: { board: BoardData | null }) {
   const max = Math.max(...top.map((r) => r.votes), 1);
   const tied = leader && board && Math.abs(board.leadIntendente.margin) < 0.05 && board.totalVotes > 0;
   const hasVotes = Boolean(board && board.totalVotes > 0 && leader);
+  const hot = isPulseHot(board?.lastVoteAt, now);
 
   return (
     <aside className="card min-w-0 overflow-hidden p-4 sm:p-5">
       <div className="flex items-center justify-between gap-2">
         <p className="min-w-0 truncate text-sm text-muted">Intendencia ahora</p>
-        <LiveChip />
+        <LiveChip hot={hot} />
       </div>
+      <p className="mono mt-1 text-[11px] text-muted">{formatLastVote(board?.lastVoteAt, now)}</p>
 
       {lineup.length ? (
         <div className="mt-4 grid grid-cols-3 gap-1.5 sm:gap-2">
@@ -64,9 +69,16 @@ export function LiveCard({ board }: { board: BoardData | null }) {
             </h2>
             <p className="text-xs text-muted [overflow-wrap:anywhere] sm:text-sm">{leader.party}</p>
             <p className="mt-1 text-sm font-medium text-brand-strong">
-              {tied
-                ? `${leader.pct.toFixed(1)}% · empate en la cima`
-                : `${leader.pct.toFixed(1)}% · +${board.leadIntendente.margin.toFixed(1)} pts`}
+              {tied ? (
+                <>
+                  <CountUp value={leader.pct} digits={1} suffix="%" /> · empate en la cima
+                </>
+              ) : (
+                <>
+                  <CountUp value={leader.pct} digits={1} suffix="%" /> · +
+                  <CountUp value={board.leadIntendente.margin} digits={1} /> pts
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -81,13 +93,15 @@ export function LiveCard({ board }: { board: BoardData | null }) {
                   <CandidatePhoto src={row.photoUrl} name={row.name} color={row.color} size={24} />
                   <span className="truncate">{shortName(row.name)}</span>
                 </span>
-                <span className="mono shrink-0 text-muted">{row.pct.toFixed(1)}%</span>
+                <span className="mono shrink-0 text-muted">
+                  <CountUp value={row.pct} digits={1} suffix="%" />
+                </span>
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-surface-2">
                 <div
-                  className="h-full rounded-full"
+                  className="h-full rounded-full transition-[width] duration-700"
                   style={{
-                    width: `${Math.max(6, (row.votes / max) * 100)}%`,
+                    width: cssPct(Math.max(6, (row.votes / max) * 100), 6),
                     background: row.color,
                   }}
                 />
@@ -96,6 +110,10 @@ export function LiveCard({ board }: { board: BoardData | null }) {
           ))}
         </div>
       ) : null}
+
+      <div className="mt-5 min-w-0">
+        <ActivitySparkline hours={board?.hourlyActivity ?? []} />
+      </div>
 
       <Link href="/resultados" className="mt-5 inline-flex text-sm font-medium text-brand-strong">
         Ver el tablero →
