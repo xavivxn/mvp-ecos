@@ -2,21 +2,26 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CountUp } from "./CountUp";
+import { CandidatePhoto } from "./CandidatePhoto";
 import { LiveChip } from "./LiveChip";
+import { partySurface } from "@/lib/color";
 import type { BoardData, RankedChoice } from "@/lib/results";
 
 function Bar({ row, max }: { row: RankedChoice; max: number }) {
   const width = max ? Math.max(4, (row.votes / max) * 100) : 4;
   return (
-    <div className="space-y-2">
-      <div className="flex items-end justify-between gap-3">
-        <div className="min-w-0">
-          <p className="font-medium">{row.name}</p>
-          <p className="text-sm text-muted">{row.party}</p>
+    <div className="min-w-0 space-y-2 overflow-hidden rounded-xl border-2 p-3" style={partySurface(row.color)}>
+      <div className="flex items-start justify-between gap-2 sm:items-center sm:gap-3">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <CandidatePhoto src={row.photoUrl} name={row.name} color={row.color} size={row.photoUrl ? 48 : 36} />
+          <div className="min-w-0">
+            <p className="font-medium leading-tight [overflow-wrap:anywhere]">{row.name}</p>
+            <p className="text-xs [overflow-wrap:anywhere] sm:text-sm" style={{ color: row.color }}>{row.party}</p>
+          </div>
         </div>
-        <p className="text-right">
-          <span className="mono text-lg">{row.pct.toFixed(1)}%</span>
-          <span className="ml-2 text-sm text-muted">{row.votes} votos</span>
+        <p className="shrink-0 text-right">
+          <span className="mono text-base sm:text-lg">{row.pct.toFixed(1)}%</span>
+          <span className="mt-0.5 block text-xs text-muted sm:ml-2 sm:mt-0 sm:inline">{row.votes} votos</span>
         </p>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-surface-2">
@@ -47,10 +52,24 @@ function Race({
     <section className="space-y-4">
       <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
       {lead.leader && lead.leader.votes > 0 ? (
-        <div className="card border-brand/30 bg-brand-soft/60 p-5">
-          <span className="chip bg-brand text-on-brand">Lidera</span>
-          <h3 className="mt-3 text-2xl font-semibold tracking-tight">{lead.leader.name}</h3>
-          <p className="text-sm text-muted">{lead.leader.party}</p>
+        <div className="card border-2 p-5" style={partySurface(lead.leader.color, true)}>
+          <span className="chip text-white" style={{ background: lead.leader.color }}>
+            Lidera
+          </span>
+          <div className="mt-3 flex items-center gap-3">
+            <CandidatePhoto
+              src={lead.leader.photoUrl}
+              name={lead.leader.name}
+              color={lead.leader.color}
+              size={72}
+            />
+            <div className="min-w-0">
+              <h3 className="text-xl font-semibold tracking-tight leading-tight [overflow-wrap:anywhere] sm:text-2xl">
+                {lead.leader.name}
+              </h3>
+              <p className="text-sm text-muted [overflow-wrap:anywhere]">{lead.leader.party}</p>
+            </div>
+          </div>
           <p className="mt-2 font-medium text-brand-strong">
             {tied
               ? `${lead.leader.pct.toFixed(1)}% · empate en la cima`
@@ -154,13 +173,13 @@ export function ResultsBoard({ initial }: { initial: BoardData }) {
 
       <div className="hidden gap-8 lg:grid lg:grid-cols-2">
         <Race title="Intendencia" rows={board.intendente} lead={board.leadIntendente} />
-        <Race title="Concejalía por lista" rows={board.concejal} lead={board.leadConcejal} />
+        <Race title="Concejalía" rows={board.concejal} lead={board.leadConcejal} />
       </div>
       <div className="lg:hidden">
         {tab === "intendente" ? (
           <Race title="Intendencia" rows={board.intendente} lead={board.leadIntendente} />
         ) : (
-          <Race title="Concejalía por lista" rows={board.concejal} lead={board.leadConcejal} />
+          <Race title="Concejalía" rows={board.concejal} lead={board.leadConcejal} />
         )}
       </div>
 

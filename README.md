@@ -8,7 +8,7 @@ Plataforma web de intención de voto para las municipales 2026. Mobile-first, un
 - En desarrollo (`PADRON_MODE=mock`) la consulta al padrón está simulada para poder desplegar y probar el flujo.
 - En producción (`PADRON_MODE=db`) busca en `private.padron_electores`. No consulta `padron.tsje.gov.py`.
 - Una cédula, un voto. Si no figura en el padrón o la fecha no coincide, no hay voto.
-- Concejalía por lista. Intendencia por candidato. También se puede votar en blanco.
+- Concejalía e intendencia por candidato. También se puede votar en blanco.
 - El voto es secreto: el hash de cédula vive en `voter_registry`, separado de `votes`. El padrón tampoco guarda cédula, nombre ni partido.
 
 ## Stack

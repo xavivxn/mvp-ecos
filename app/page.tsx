@@ -21,8 +21,8 @@ export default async function HomePage() {
   return (
     <div className="pb-24 md:pb-0">
       <section className="mx-auto max-w-5xl px-4 pb-12 pt-10">
-        <div className="grid items-start gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-          <div>
+        <div className="grid min-w-0 items-start gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="min-w-0">
             <p className="chip bg-brand-soft text-brand-strong">
               <span className="mono">Elecciones Municipales 2026 · Yaguarón</span>
             </p>

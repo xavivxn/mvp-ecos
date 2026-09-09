@@ -1,13 +1,16 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Check, IdCard, Share2 } from "lucide-react";
 import { TurnstileField } from "./TurnstileField";
 import { CandidateCard } from "./CandidateCard";
+import { CandidatePhoto } from "./CandidatePhoto";
 import { SpecialChoice } from "./SpecialChoice";
+import { partySurface } from "@/lib/color";
 import { StatusScreen } from "./StatusScreen";
-import type { Candidate } from "@/lib/types";
+import { sortCandidatesByVotes } from "@/lib/results";
+import type { Candidate, ChoiceCount } from "@/lib/types";
 
 type Step = "verify" | "intendente" | "concejal" | "confirm" | "done";
 
@@ -19,6 +22,12 @@ const STEP_INDEX: Record<Step, number> = {
   confirm: 3,
   done: 4,
 };
+
+function voteCounts(rows?: { id: string; votes: number; isSpecial?: boolean }[]): ChoiceCount[] {
+  return (rows ?? [])
+    .filter((row) => !row.isSpecial)
+    .map((row) => ({ choice: row.id, votes: row.votes }));
+}
 
 const MONTHS = [
   "Enero",
@@ -56,6 +65,7 @@ export function VoteWizard({
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
   const [turnstile, setTurnstile] = useState("");
+  const [turnstileKey, setTurnstileKey] = useState(0);
   const [token, setToken] = useState("");
   const [district, setDistrict] = useState<string | null>(null);
   const [intendente, setIntendente] = useState("");
@@ -65,23 +75,70 @@ export function VoteWizard({
   const [demo, setDemo] = useState(false);
   const [whyOpen, setWhyOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [rankedIntendentes, setRankedIntendentes] = useState(intendentes);
+  const [rankedConcejales, setRankedConcejales] = useState(concejales);
+
+  useEffect(() => {
+    setRankedIntendentes(intendentes);
+  }, [intendentes]);
+
+  useEffect(() => {
+    setRankedConcejales(concejales);
+  }, [concejales]);
+
+  useEffect(() => {
+    if (step !== "intendente" && step !== "concejal") return;
+
+    let cancelled = false;
+    const refresh = async () => {
+      const res = await fetch("/api/results", { cache: "no-store" });
+      if (!res.ok || cancelled) return;
+      const data = (await res.json()) as {
+        ok?: boolean;
+        intendente?: { id: string; votes: number; isSpecial?: boolean }[];
+        concejal?: { id: string; votes: number; isSpecial?: boolean }[];
+      };
+      if (!data.ok || cancelled) return;
+      setRankedIntendentes(sortCandidatesByVotes(intendentes, voteCounts(data.intendente)));
+      setRankedConcejales(sortCandidatesByVotes(concejales, voteCounts(data.concejal)));
+    };
+
+    void refresh();
+    const id = window.setInterval(() => void refresh(), 10_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [step, intendentes, concejales]);
 
   const fechaNacimiento = useMemo(() => {
     if (!day || !month || !year) return "";
     return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
   }, [day, month, year]);
 
-  const intendenteLabel =
+  const needsTurnstile = Boolean(turnstileSiteKey);
+  const hasRequiredFields = Boolean(cedula) && Boolean(day) && Boolean(month) && Boolean(year);
+  const turnstileReady = !needsTurnstile || Boolean(turnstile);
+  const canVerify = hasRequiredFields && turnstileReady && !busy;
+  const canSubmitVote = Boolean(intendente) && Boolean(concejal) && turnstileReady && !busy;
+
+  function resetTurnstile() {
+    setTurnstile("");
+    setTurnstileKey((key) => key + 1);
+  }
+
+  const intendenteChoice =
     intendente === "blanco"
-      ? "Voto en blanco"
-      : intendentes.find((c) => c.id === intendente)?.name ?? "";
-  const concejalLabel =
+      ? { name: "Voto en blanco", party: "Opción especial", color: "#C4B8A5", photoUrl: null }
+      : intendentes.find((c) => c.id === intendente);
+  const concejalChoice =
     concejal === "blanco"
-      ? "Voto en blanco"
-      : concejales.find((c) => c.id === concejal)?.name ?? "";
+      ? { name: "Voto en blanco", party: "Opción especial", color: "#C4B8A5", photoUrl: null }
+      : concejales.find((c) => c.id === concejal);
 
   async function verify(e: FormEvent) {
     e.preventDefault();
+    if (!canVerify) return;
     setBusy(true);
     setError("");
     try {
@@ -91,12 +148,13 @@ export function VoteWizard({
         body: JSON.stringify({
           cedula: cedula.replace(/\D/g, ""),
           fechaNacimiento,
-          turnstileToken: turnstile || "dev",
+          turnstileToken: turnstile || (needsTurnstile ? "" : "dev"),
         }),
       });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || "No se pudo verificar.");
+        resetTurnstile();
         if (data.code === "already_voted" && !allowRepeatVotes) setStep("done");
         return;
       }
@@ -106,12 +164,14 @@ export function VoteWizard({
       setStep("intendente");
     } catch {
       setError("Error de red. Intentá de nuevo.");
+      resetTurnstile();
     } finally {
       setBusy(false);
     }
   }
 
   async function submit() {
+    if (!canSubmitVote) return;
     setBusy(true);
     setError("");
     try {
@@ -122,17 +182,19 @@ export function VoteWizard({
           token,
           intendente,
           concejal,
-          turnstileToken: turnstile || "dev",
+          turnstileToken: turnstile || (needsTurnstile ? "" : "dev"),
         }),
       });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || "No se pudo registrar el voto.");
+        resetTurnstile();
         return;
       }
       setStep("done");
     } catch {
       setError("Error de red. Intentá de nuevo.");
+      resetTurnstile();
     } finally {
       setBusy(false);
     }
@@ -229,7 +291,7 @@ export function VoteWizard({
                     value={cedula}
                     onChange={(e) => setCedula(e.target.value.replace(/\D/g, ""))}
                     placeholder="Sin puntos"
-                    className="field pl-10"
+                    className="field field-icon"
                   />
                 </span>
                 <span className="mt-1.5 block text-xs text-muted">Escribí solo números.</span>
@@ -277,8 +339,12 @@ export function VoteWizard({
                   El voto queda separado de esa verificación.
                 </p>
               ) : null}
-              <TurnstileField siteKey={turnstileSiteKey} onToken={setTurnstile} />
-              <button type="submit" disabled={busy} className="btn-primary w-full">
+              <TurnstileField
+                siteKey={turnstileSiteKey}
+                onToken={setTurnstile}
+                resetKey={turnstileKey}
+              />
+              <button type="submit" disabled={!canVerify} className="btn-primary w-full">
                 {busy ? (
                   <span className="flex items-center gap-2">
                     <span className="flex gap-1" aria-hidden>
@@ -298,14 +364,17 @@ export function VoteWizard({
           {step === "intendente" && (
             <div className="space-y-3">
               <h1 className="text-2xl font-semibold tracking-tight">Intendencia</h1>
-              <p className="text-muted">Elegí un candidato o una opción especial.</p>
-              {intendentes.map((c) => (
-                <CandidateCard
-                  key={c.id}
-                  candidate={c}
-                  selected={intendente === c.id}
-                  onSelect={() => setIntendente(c.id)}
-                />
+              <p className="text-muted">
+                Elegí un candidato o votá en blanco. El orden sigue los votos actuales.
+              </p>
+              {rankedIntendentes.map((c) => (
+                <motion.div key={c.id} layout>
+                  <CandidateCard
+                    candidate={c}
+                    selected={intendente === c.id}
+                    onSelect={() => setIntendente(c.id)}
+                  />
+                </motion.div>
               ))}
               <SpecialChoice selected={intendente === "blanco"} onSelect={() => setIntendente("blanco")} />
             </div>
@@ -314,14 +383,17 @@ export function VoteWizard({
           {step === "concejal" && (
             <div className="space-y-3">
               <h1 className="text-2xl font-semibold tracking-tight">Concejalía</h1>
-              <p className="text-muted">Elegí una lista. En el MVP el voto es por lista, no preferencial.</p>
-              {concejales.map((c) => (
-                <CandidateCard
-                  key={c.id}
-                  candidate={c}
-                  selected={concejal === c.id}
-                  onSelect={() => setConcejal(c.id)}
-                />
+              <p className="text-muted">
+                Elegí un candidato o votá en blanco. El orden sigue los votos actuales.
+              </p>
+              {rankedConcejales.map((c) => (
+                <motion.div key={c.id} layout>
+                  <CandidateCard
+                    candidate={c}
+                    selected={concejal === c.id}
+                    onSelect={() => setConcejal(c.id)}
+                  />
+                </motion.div>
               ))}
               <SpecialChoice selected={concejal === "blanco"} onSelect={() => setConcejal("blanco")} />
             </div>
@@ -338,17 +410,53 @@ export function VoteWizard({
               {district ? (
                 <p className="mono text-xs uppercase tracking-wider text-muted">Distrito · {district}</p>
               ) : null}
-              <ul className="card divide-y divide-line">
-                <li className="p-4">
-                  <span className="text-sm text-muted">Intendencia</span>
-                  <div className="text-lg font-medium">{intendenteLabel}</div>
+              <ul className="space-y-2">
+                <li
+                  className="flex items-center gap-3 rounded-xl border-2 p-4"
+                  style={partySurface(intendenteChoice?.color ?? "#C4B8A5")}
+                >
+                  <CandidatePhoto
+                    src={intendenteChoice?.photoUrl}
+                    name={intendenteChoice?.name ?? ""}
+                    color={intendenteChoice?.color ?? "#C4B8A5"}
+                    size={72}
+                  />
+                  <div className="min-w-0">
+                    <span className="text-sm text-muted">Intendencia</span>
+                    <div className="text-lg font-medium leading-tight">{intendenteChoice?.name}</div>
+                    {intendenteChoice?.party ? (
+                      <div className="text-sm font-medium" style={{ color: intendenteChoice.color }}>
+                        {intendenteChoice.party}
+                      </div>
+                    ) : null}
+                  </div>
                 </li>
-                <li className="p-4">
-                  <span className="text-sm text-muted">Concejalía</span>
-                  <div className="text-lg font-medium">{concejalLabel}</div>
+                <li
+                  className="flex items-center gap-3 rounded-xl border-2 p-4"
+                  style={partySurface(concejalChoice?.color ?? "#C4B8A5")}
+                >
+                  <CandidatePhoto
+                    src={concejalChoice?.photoUrl}
+                    name={concejalChoice?.name ?? ""}
+                    color={concejalChoice?.color ?? "#C4B8A5"}
+                    size={72}
+                  />
+                  <div className="min-w-0">
+                    <span className="text-sm text-muted">Concejalía</span>
+                    <div className="text-lg font-medium leading-tight">{concejalChoice?.name}</div>
+                    {concejalChoice?.party ? (
+                      <div className="text-sm font-medium" style={{ color: concejalChoice.color }}>
+                        {concejalChoice.party}
+                      </div>
+                    ) : null}
+                  </div>
                 </li>
               </ul>
-              <TurnstileField siteKey={turnstileSiteKey} onToken={setTurnstile} />
+              <TurnstileField
+                siteKey={turnstileSiteKey}
+                onToken={setTurnstile}
+                resetKey={turnstileKey}
+              />
               <button type="button" onClick={() => setStep("concejal")} className="btn-ghost inline-flex w-full text-sm">
                 Volver a editar
               </button>
@@ -382,6 +490,7 @@ export function VoteWizard({
                       setIntendente("");
                       setConcejal("");
                       setToken("");
+                      resetTurnstile();
                       setError("");
                     }}
                     className="btn-secondary"
@@ -428,14 +537,22 @@ export function VoteWizard({
               <button
                 type="button"
                 disabled={!concejal}
-                onClick={() => setStep("confirm")}
+                onClick={() => {
+                  resetTurnstile();
+                  setStep("confirm");
+                }}
                 className="btn-primary flex-[2]"
               >
                 Revisar
               </button>
             ) : null}
             {step === "confirm" ? (
-              <button type="button" disabled={busy} onClick={() => void submit()} className="btn-primary flex-1">
+              <button
+                type="button"
+                disabled={!canSubmitVote}
+                onClick={() => void submit()}
+                className="btn-primary flex-1"
+              >
                 {busy ? "Registrando…" : "Enviar intención de voto"}
               </button>
             ) : null}

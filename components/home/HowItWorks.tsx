@@ -10,7 +10,7 @@ const STEPS = [
   {
     n: "02",
     title: "Elegís",
-    body: "Intendencia y una lista de concejalía. También podés votar en blanco.",
+    body: "Intendencia y concejalía. También podés votar en blanco.",
     icon: Vote,
   },
   {

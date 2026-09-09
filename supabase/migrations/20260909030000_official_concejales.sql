@@ -1,19 +1,26 @@
--- Elección activa + intendentes y concejales oficiales.
-insert into public.elections (id, name, city, district_code, opens_at, closes_at, is_active)
-values (
-  '00000000-0000-4000-8000-000000000001',
-  'Elecciones Municipales 2026',
-  'Yaguarón',
-  null,
-  now() - interval '1 day',
-  timestamptz '2026-10-04 23:59:59-03',
-  true
+-- Reemplaza las 6 listas dummy de concejalía por los 33 concejales oficiales (sin #19; el blanco ya cubre esa fila).
+delete from public.votes
+where concejal_choice in (
+  '00000000-0000-4000-8000-000000000021',
+  '00000000-0000-4000-8000-000000000022',
+  '00000000-0000-4000-8000-000000000023',
+  '00000000-0000-4000-8000-000000000024',
+  '00000000-0000-4000-8000-000000000025',
+  '00000000-0000-4000-8000-000000000026'
 );
 
-insert into public.candidates (id, election_id, race, name, party, color, photo_url, sort_order) values
-  ('00000000-0000-4000-8000-000000000032', '00000000-0000-4000-8000-000000000001', 'intendente', 'Ing. César Riquelme', 'Asociación Nacional Republicana (ANR)', '#CE1126', '/candidates/cesar-riquelme.webp', 1),
-  ('00000000-0000-4000-8000-000000000031', '00000000-0000-4000-8000-000000000001', 'intendente', 'Ing. Chope del Puerto', 'Partido Liberal Radical Auténtico (PLRA)', '#1E5AA8', '/candidates/chope-del-puerto.webp', 2),
-  ('00000000-0000-4000-8000-000000000033', '00000000-0000-4000-8000-000000000001', 'intendente', 'Alberto Sosa Vera', 'Partido Encuentro Nacional (PEN)', '#F5C518', '/candidates/alberto-sosa-vera.webp', 3),
+delete from public.candidates
+where id in (
+  '00000000-0000-4000-8000-000000000021',
+  '00000000-0000-4000-8000-000000000022',
+  '00000000-0000-4000-8000-000000000023',
+  '00000000-0000-4000-8000-000000000024',
+  '00000000-0000-4000-8000-000000000025',
+  '00000000-0000-4000-8000-000000000026'
+);
+
+insert into public.candidates (id, election_id, race, name, party, color, photo_url, sort_order)
+values
   ('00000000-0000-4000-8000-000000000101', '00000000-0000-4000-8000-000000000001', 'concejal_lista', 'Manuel Benítez', 'Partido Liberal Radical Auténtico (PLRA)', '#1E5AA8', '/candidates/concejales/manuel-benitez.webp', 1),
   ('00000000-0000-4000-8000-000000000102', '00000000-0000-4000-8000-000000000001', 'concejal_lista', 'Davito Ochoa', 'Asociación Nacional Republicana (ANR)', '#CE1126', '/candidates/concejales/davito-ochoa.webp', 2),
   ('00000000-0000-4000-8000-000000000103', '00000000-0000-4000-8000-000000000001', 'concejal_lista', 'Lucho Agüero', 'Partido Liberal Radical Auténtico (PLRA)', '#1E5AA8', '/candidates/concejales/lucho-aguero.webp', 3),

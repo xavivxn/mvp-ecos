@@ -10,6 +10,7 @@ export type RankedChoice = {
   name: string;
   party: string;
   color: string;
+  photoUrl: string | null;
   votes: number;
   pct: number;
   isSpecial: boolean;
@@ -40,6 +41,7 @@ function rank(counts: ChoiceCount[], candidates: Candidate[], race: Candidate["r
         name: c.name,
         party: c.party,
         color: c.color,
+        photoUrl: c.photoUrl,
         votes,
         pct: total ? (votes / total) * 100 : 0,
         isSpecial: false,
@@ -52,6 +54,7 @@ function rank(counts: ChoiceCount[], candidates: Candidate[], race: Candidate["r
       name: SPECIAL[key].name,
       party: SPECIAL[key].party,
       color: SPECIAL[key].color,
+      photoUrl: null,
       votes: map.get(key) ?? 0,
       pct: total ? ((map.get(key) ?? 0) / total) * 100 : 0,
       isSpecial: true,
@@ -59,6 +62,13 @@ function rank(counts: ChoiceCount[], candidates: Candidate[], race: Candidate["r
   }
 
   return rows.sort((a, b) => b.votes - a.votes || a.name.localeCompare(b.name, "es"));
+}
+
+export function sortCandidatesByVotes(candidates: Candidate[], counts: ChoiceCount[]): Candidate[] {
+  const map = new Map(counts.map((c) => [c.choice, c.votes]));
+  return [...candidates].sort(
+    (a, b) => (map.get(b.id) ?? 0) - (map.get(a.id) ?? 0) || a.sortOrder - b.sortOrder,
+  );
 }
 
 function lead(rows: RankedChoice[]) {

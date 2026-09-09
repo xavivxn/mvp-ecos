@@ -1,15 +1,7 @@
 import { Check } from "lucide-react";
+import { CandidatePhoto } from "./CandidatePhoto";
+import { partySurface } from "@/lib/color";
 import type { Candidate } from "@/lib/types";
-
-function initials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
-}
 
 export function CandidateCard({
   candidate,
@@ -20,44 +12,34 @@ export function CandidateCard({
   selected: boolean;
   onSelect: () => void;
 }) {
-  const listBadge = candidate.race === "concejal_lista" ? candidate.name : null;
-
   return (
     <button
       type="button"
       onClick={onSelect}
       aria-pressed={selected}
-      className={`flex min-h-16 w-full items-center gap-3 rounded-xl border px-3 py-3 text-left transition ${
-        selected
-          ? "border-brand bg-brand-soft"
-          : "border-line bg-bg hover:border-brand/40"
-      }`}
+      className="flex min-h-20 w-full items-center gap-3 rounded-xl border-2 px-3 py-3 text-left transition"
+      style={partySurface(candidate.color, selected)}
     >
-      <span
-        className="grid h-11 w-11 shrink-0 place-items-center rounded-lg text-sm font-semibold text-white"
-        style={{ background: candidate.color }}
-      >
-        {initials(candidate.name)}
-      </span>
-      <span className="min-w-0 flex-1">
-        {listBadge ? (
-          <>
-            <span className="chip mb-1 bg-surface-2 mono text-[10px] uppercase tracking-wider text-muted">
-              {listBadge}
-            </span>
-            <span className="block font-medium leading-tight">{candidate.party}</span>
-          </>
-        ) : (
-          <>
-            <span className="block font-medium leading-tight">{candidate.name}</span>
-            <span className="block text-sm text-muted">{candidate.party}</span>
-          </>
-        )}
+      <CandidatePhoto
+        src={candidate.photoUrl}
+        name={candidate.name}
+        color={candidate.color}
+        size={candidate.photoUrl ? 64 : 40}
+        className="sm:!h-20 sm:!w-20"
+      />
+      <span className="min-w-0 flex-1 overflow-hidden">
+        <span className="block font-medium leading-tight [overflow-wrap:anywhere]">{candidate.name}</span>
+        <span className="block text-sm font-medium [overflow-wrap:anywhere]" style={{ color: candidate.color }}>
+          {candidate.party}
+        </span>
       </span>
       <span
-        className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border ${
-          selected ? "border-brand bg-brand text-on-brand" : "border-line"
-        }`}
+        className="grid h-5 w-5 shrink-0 place-items-center rounded-full border-2"
+        style={
+          selected
+            ? { borderColor: candidate.color, background: candidate.color, color: "#fff" }
+            : { borderColor: candidate.color }
+        }
       >
         {selected ? <Check className="h-3 w-3" strokeWidth={3} /> : null}
       </span>

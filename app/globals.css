@@ -145,6 +145,10 @@ body {
   outline: none;
 }
 
+.field-icon {
+  padding-left: 2.75rem;
+}
+
 .field:focus {
   border-color: var(--brand);
   box-shadow: 0 0 0 3px var(--brand-soft);

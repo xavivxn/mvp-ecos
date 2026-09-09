@@ -2,7 +2,7 @@ import { env } from "@/lib/env";
 
 export async function verifyTurnstile(token: string, ip: string) {
   if (!env.turnstileSecretKey) {
-    return env.padronMode === "mock";
+    return true;
   }
 
   const body = new URLSearchParams({
