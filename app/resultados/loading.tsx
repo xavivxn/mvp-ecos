@@ -1,20 +1,20 @@
 import { Skeleton } from "@/components/Skeleton";
-import { HomeKpisSkeleton, SparklineSkeleton } from "@/components/home/HomeSkeletons";
 
 function RaceSkeleton() {
   return (
     <section className="space-y-4">
       <Skeleton className="h-7 w-36" />
-      <div className="card border-2 p-5">
-        <Skeleton className="h-6 w-16 rounded-full" />
-        <div className="mt-3 flex items-center gap-3">
-          <Skeleton className="h-[72px] w-[72px] shrink-0 rounded-full" />
+      <div className="rounded-2xl border-2 border-line p-5">
+        <Skeleton className="h-6 w-28 rounded-full" />
+        <div className="mt-4 flex items-center gap-4">
+          <Skeleton className="h-24 w-24 shrink-0 rounded-xl sm:h-28 sm:w-28" />
           <div className="min-w-0 flex-1">
-            <Skeleton className="h-7 w-3/4" />
+            <Skeleton className="h-8 w-3/4" />
             <Skeleton className="mt-2 h-4 w-1/2" />
+            <Skeleton className="mt-3 h-12 w-28" />
+            <Skeleton className="mt-2 h-4 w-40" />
           </div>
         </div>
-        <Skeleton className="mt-3 h-5 w-40" />
       </div>
       <div className="card space-y-5 p-5">
         {Array.from({ length: 4 }, (_, i) => (
@@ -44,13 +44,11 @@ export default function ResultadosLoading() {
       <Skeleton className="mt-3 h-9 w-72 sm:h-10" />
       <Skeleton className="mt-3 h-12 w-full max-w-xl" />
       <div className="mt-8 space-y-6">
-        <div className="flex flex-wrap items-center gap-3">
-          <Skeleton className="h-6 w-16 rounded-full" />
-          <Skeleton className="h-3 w-36" />
-          <Skeleton className="h-3 w-32" />
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <Skeleton className="h-6 w-16 shrink-0 rounded-full" />
+          <Skeleton className="hidden h-3 w-40 sm:block sm:min-w-0 sm:flex-1" />
+          <Skeleton className="ml-auto h-3 w-32 shrink-0" />
         </div>
-        <SparklineSkeleton />
-        <HomeKpisSkeleton className="" />
         <div className="grid grid-cols-2 gap-1 rounded-xl bg-surface p-1 lg:hidden">
           <Skeleton className="h-10 rounded-lg" />
           <Skeleton className="h-10 rounded-lg" />

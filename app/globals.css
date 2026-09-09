@@ -170,6 +170,20 @@ body {
   animation: leader-flash 700ms ease-out;
 }
 
+@keyframes leader-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--brand-soft);
+  }
+  50% {
+    box-shadow: 0 0 24px 2px var(--brand-soft);
+  }
+}
+
+.leader-glow {
+  animation: leader-glow 2.8s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

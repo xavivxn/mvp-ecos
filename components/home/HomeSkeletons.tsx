@@ -1,24 +1,5 @@
 import { Skeleton } from "@/components/Skeleton";
 
-export function SparklineSkeleton({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`flex h-8 min-w-0 items-end gap-px overflow-hidden sm:h-12 ${className}`}
-      aria-hidden
-    >
-      {Array.from({ length: 24 }, (_, i) => (
-        <div
-          key={i}
-          className="min-w-0 flex-1 overflow-hidden rounded-sm"
-          style={{ height: `${18 + ((i * 13) % 72)}%` }}
-        >
-          <Skeleton className="h-full w-full rounded-sm" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export function LiveCardSkeleton() {
   return (
     <aside className="card min-w-0 overflow-hidden p-4 sm:p-5" aria-busy="true" aria-label="Cargando tablero en vivo">
@@ -36,6 +17,16 @@ export function LiveCardSkeleton() {
           </div>
         ))}
       </div>
+      <div className="mt-5 rounded-2xl border-2 border-line p-4">
+        <Skeleton className="h-6 w-24 rounded-full" />
+        <div className="mt-4 flex items-center gap-3">
+          <Skeleton className="h-16 w-16 shrink-0 rounded-xl" />
+          <div className="min-w-0 flex-1">
+            <Skeleton className="h-5 w-3/4" />
+            <Skeleton className="mt-2 h-8 w-20" />
+          </div>
+        </div>
+      </div>
       <div className="mt-5 space-y-3">
         {Array.from({ length: 3 }, (_, i) => (
           <div key={i}>
@@ -47,7 +38,6 @@ export function LiveCardSkeleton() {
           </div>
         ))}
       </div>
-      <SparklineSkeleton className="mt-5" />
     </aside>
   );
 }
