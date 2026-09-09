@@ -1,8 +1,8 @@
 import { env } from "@/lib/env";
 
 export async function verifyTurnstile(token: string, ip: string) {
-  if (!env.turnstileSecretKey) {
-    return true;
+  if (!token || token === "dev" || !env.turnstileSecretKey) {
+    return false;
   }
 
   const body = new URLSearchParams({

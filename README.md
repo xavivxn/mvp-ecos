@@ -29,6 +29,7 @@ Cédula de prueba en mock: cualquier número de 5 a 10 dígitos, excepto `999999
 npm run spike:padron   # parsea data/padron/*.md y verifica 24.643 electores
 npm run seed:padron    # hashea y carga el padrón en Supabase
 PADRON_MODE=db npm run check:padron  # lookup real / fecha mala / cédula inexistente
+RESET_SURVEY=yes npm run reset:survey  # vacía votos, registry y visitas (pide SUPABASE_DB_URL)
 npm run build
 ```
 
@@ -39,7 +40,7 @@ Los markdown del padrón van en `data/padron/` y **no se commitean**. Si rotás 
 - `PADRON_MODE=mock|db`
 - `APP_RPC_SECRET` debe coincidir con el hash guardado en `private.app_config`
 - Turnstile es opcional en mock. En db conviene activarlo.
-- `ALLOW_REPEAT_VOTES=true` suelta el candado de una cédula = un voto (cookie, unique y rate limits). El padrón y la fecha siguen valiendo. Apagar antes de lo oficial y borrar `votes` + `voter_registry`.
+- `ALLOW_REPEAT_VOTES=true` suelta el candado de una cédula = un voto (cookie, unique y rate limits). El padrón y la fecha siguen valiendo. Apagar antes de lo oficial y correr `RESET_SURVEY=yes npm run reset:survey` (borra `votes`, `voter_registry` y `visits`; no toca candidatos ni padrón). La cookie `ecos_voted` queda en el browser: con el flag de ensayo no molesta.
 
 ## Deploy a Vercel
 

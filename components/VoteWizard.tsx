@@ -125,9 +125,8 @@ export function VoteWizard({
     return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
   }, [day, month, year]);
 
-  const needsTurnstile = Boolean(turnstileSiteKey);
   const hasRequiredFields = Boolean(cedula) && Boolean(day) && Boolean(month) && Boolean(year);
-  const turnstileReady = !needsTurnstile || Boolean(turnstile);
+  const turnstileReady = Boolean(turnstile);
   const canVerify = hasRequiredFields && turnstileReady && !busy;
   const canSubmitVote = Boolean(intendente) && Boolean(concejal) && turnstileReady && !busy;
 
@@ -157,7 +156,7 @@ export function VoteWizard({
         body: JSON.stringify({
           cedula: cedula.replace(/\D/g, ""),
           fechaNacimiento,
-          turnstileToken: turnstile || (needsTurnstile ? "" : "dev"),
+          turnstileToken: turnstile,
         }),
       });
       const data = await res.json();
@@ -191,7 +190,7 @@ export function VoteWizard({
           token,
           intendente,
           concejal,
-          turnstileToken: turnstile || (needsTurnstile ? "" : "dev"),
+          turnstileToken: turnstile,
         }),
       });
       const data = await res.json();

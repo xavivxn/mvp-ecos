@@ -13,14 +13,14 @@ export const birthDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 export const verifySchema = z.object({
   cedula: cedulaSchema,
   fechaNacimiento: birthDateSchema,
-  turnstileToken: z.string().min(1).optional().default("dev"),
+  turnstileToken: z.string().min(1),
 });
 
 export const voteSchema = z.object({
   token: z.string().min(20),
   intendente: z.string().min(1),
   concejal: z.string().min(1),
-  turnstileToken: z.string().min(1).optional().default("dev"),
+  turnstileToken: z.string().min(1),
 });
 
 export type Candidate = {

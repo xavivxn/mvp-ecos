@@ -20,7 +20,7 @@ export default function HomePage() {
               <span className="mono">Elecciones Municipales 2026 · Yaguarón</span>
             </p>
             <h1 className="mt-4 max-w-xl text-4xl font-semibold tracking-tight sm:text-5xl">
-              El pulso de Yaguarón, en números.
+              Encuesta de Ecos Yaguarón.
             </h1>
             <p className="mt-4 max-w-lg text-muted">
               Ecos es una herramienta ciudadana de intención de voto. Validamos cédula y fecha

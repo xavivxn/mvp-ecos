@@ -9,7 +9,8 @@
     "lint": "eslint",
     "spike:padron": "npx tsx scripts/spike-padron.ts",
     "seed:padron": "npx tsx --env-file=.env.local scripts/seed-padron.ts",
-    "check:padron": "npx tsx --env-file=.env.local scripts/check-padron-lookup.ts"
+    "check:padron": "npx tsx --env-file=.env.local scripts/check-padron-lookup.ts",
+    "reset:survey": "npx tsx --env-file=.env.local scripts/reset-survey.ts"
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.6.1",
@@ -30,6 +31,8 @@
     "eslint-config-next": "16.3.4",
     "tailwindcss": "^4",
     "tsx": "^4.23.13",
-    "typescript": "^5"
+    "typescript": "^5",
+    "pg": "^8.16.3",
+    "@types/pg": "^8.15.5"
   }
 }
