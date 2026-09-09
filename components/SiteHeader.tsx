@@ -5,23 +5,26 @@ import { LiveChip } from "./LiveChip";
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-bg/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-        <Logo />
-        <nav className="flex items-center gap-1.5">
+      <div className="mx-auto grid h-14 max-w-5xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-4">
+        <div className="min-w-0 justify-self-start">
+          <Logo />
+        </div>
+        <Link
+          href="/resultados"
+          aria-label="Resultados en vivo"
+          className="btn-secondary h-10 min-h-10 gap-1.5 whitespace-nowrap px-2 text-sm sm:gap-2 sm:px-4"
+        >
+          <LiveChip compact />
+          Resultados
+        </Link>
+        <nav className="flex min-w-0 items-center justify-end gap-1 sm:gap-1.5">
           <Link
             href="/#como-funciona"
             className="btn-ghost hidden text-sm md:inline-flex"
           >
             Cómo funciona
           </Link>
-          <Link
-            href="/resultados"
-            className="btn-secondary h-10 min-h-10 gap-2 px-2.5 text-sm sm:px-4"
-          >
-            <LiveChip />
-            Resultados
-          </Link>
-          <Link href="/votar" className="btn-primary h-10 min-h-10 px-3 text-sm sm:px-4">
+          <Link href="/votar" className="btn-primary h-10 min-h-10 whitespace-nowrap px-3 text-sm sm:px-4">
             Votar
           </Link>
         </nav>

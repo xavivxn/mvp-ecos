@@ -6,9 +6,11 @@ import { Check, IdCard, Share2 } from "lucide-react";
 import { TurnstileField } from "./TurnstileField";
 import { CandidateCard } from "./CandidateCard";
 import { CandidatePhoto } from "./CandidatePhoto";
+import { PartyCard } from "./PartyCard";
 import { SpecialChoice } from "./SpecialChoice";
 import { partySurface } from "@/lib/color";
 import { StatusScreen } from "./StatusScreen";
+import { groupCandidatesByParty } from "@/lib/party";
 import { sortCandidatesByVotes } from "@/lib/results";
 import type { Candidate, ChoiceCount } from "@/lib/types";
 
@@ -70,6 +72,7 @@ export function VoteWizard({
   const [district, setDistrict] = useState<string | null>(null);
   const [intendente, setIntendente] = useState("");
   const [concejal, setConcejal] = useState("");
+  const [concejalParty, setConcejalParty] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [demo, setDemo] = useState(false);
@@ -85,6 +88,12 @@ export function VoteWizard({
   useEffect(() => {
     setRankedConcejales(concejales);
   }, [concejales]);
+
+  const partyGroups = useMemo(
+    () => groupCandidatesByParty(rankedConcejales),
+    [rankedConcejales],
+  );
+  const selectedParty = partyGroups.find((group) => group.party === concejalParty) ?? null;
 
   useEffect(() => {
     if (step !== "intendente" && step !== "concejal") return;
@@ -265,7 +274,7 @@ export function VoteWizard({
 
       <AnimatePresence mode="wait">
         <motion.div
-          key={step}
+          key={`${step}-${concejalParty ?? "partidos"}`}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
@@ -383,19 +392,50 @@ export function VoteWizard({
           {step === "concejal" && (
             <div className="space-y-3">
               <h1 className="text-2xl font-semibold tracking-tight">Concejalía</h1>
-              <p className="text-muted">
-                Elegí un candidato o votá en blanco. El orden sigue los votos actuales.
-              </p>
-              {rankedConcejales.map((c) => (
-                <motion.div key={c.id} layout>
-                  <CandidateCard
-                    candidate={c}
-                    selected={concejal === c.id}
-                    onSelect={() => setConcejal(c.id)}
+              {selectedParty ? (
+                <>
+                  <p className="text-muted">
+                    Elegí un candidato de {selectedParty.abbr} o votá en blanco.
+                  </p>
+                  {selectedParty.members.map((c) => (
+                    <motion.div key={c.id} layout>
+                      <CandidateCard
+                        candidate={c}
+                        selected={concejal === c.id}
+                        hideParty
+                        onSelect={() => setConcejal(c.id)}
+                      />
+                    </motion.div>
+                  ))}
+                  <SpecialChoice
+                    selected={concejal === "blanco"}
+                    onSelect={() => setConcejal("blanco")}
                   />
-                </motion.div>
-              ))}
-              <SpecialChoice selected={concejal === "blanco"} onSelect={() => setConcejal("blanco")} />
+                </>
+              ) : (
+                <>
+                  <p className="text-muted">
+                    Elegí un movimiento. Después ves a sus candidatos.
+                  </p>
+                  {partyGroups.map((group) => (
+                    <PartyCard
+                      key={group.party}
+                      abbr={group.abbr}
+                      party={group.party}
+                      color={group.color}
+                      count={group.members.length}
+                      onSelect={() => {
+                        setConcejal("");
+                        setConcejalParty(group.party);
+                      }}
+                    />
+                  ))}
+                  <SpecialChoice
+                    selected={concejal === "blanco"}
+                    onSelect={() => setConcejal("blanco")}
+                  />
+                </>
+              )}
             </div>
           )}
 
@@ -489,6 +529,7 @@ export function VoteWizard({
                       setStep("verify");
                       setIntendente("");
                       setConcejal("");
+                      setConcejalParty(null);
                       setToken("");
                       resetTurnstile();
                       setError("");
@@ -519,7 +560,14 @@ export function VoteWizard({
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg/95 p-3 backdrop-blur pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           <div className="mx-auto flex max-w-xl gap-2">
             {step === "concejal" ? (
-              <button type="button" onClick={() => setStep("intendente")} className="btn-secondary flex-1">
+              <button
+                type="button"
+                onClick={() => {
+                  if (concejalParty) setConcejalParty(null);
+                  else setStep("intendente");
+                }}
+                className="btn-secondary flex-1"
+              >
                 Atrás
               </button>
             ) : null}

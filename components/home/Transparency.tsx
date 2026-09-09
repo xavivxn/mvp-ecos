@@ -18,7 +18,7 @@ const ITEMS = [
   },
   {
     title: "Métricas abiertas",
-    body: "El tablero es público: totales, porcentajes y visitantes. Sin cédulas a la vista.",
+    body: "El tablero es público: porcentajes en vivo. Sin cédulas a la vista.",
     icon: BarChart3,
   },
 ];

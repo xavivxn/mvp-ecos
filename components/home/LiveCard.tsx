@@ -3,13 +3,10 @@ import type { BoardData } from "@/lib/results";
 import { CandidatePhoto } from "@/components/CandidatePhoto";
 import { LiveChip } from "@/components/LiveChip";
 import { partySurface } from "@/lib/color";
+import { partyAbbr } from "@/lib/party";
 
 function shortName(name: string) {
   return name.replace(/^Ing\.\s+/i, "");
-}
-
-function partyTag(party: string) {
-  return party.split("(")[1]?.replace(")", "") ?? party;
 }
 
 export function LiveCard({ board }: { board: BoardData | null }) {
@@ -48,7 +45,7 @@ export function LiveCard({ board }: { board: BoardData | null }) {
                 {shortName(candidate.name)}
               </p>
               <p className="mt-0.5 w-full truncate text-[10px] font-semibold sm:text-[11px]" style={{ color: candidate.color }}>
-                {partyTag(candidate.party)}
+                {partyAbbr(candidate.party)}
               </p>
             </div>
           ))}
@@ -56,56 +53,51 @@ export function LiveCard({ board }: { board: BoardData | null }) {
       ) : null}
 
       {hasVotes && leader && board ? (
-        <>
-          <div
-            className="mt-5 flex min-w-0 items-center gap-3 overflow-hidden rounded-xl border-2 p-2"
-            style={partySurface(leader.color, true)}
-          >
-            <CandidatePhoto src={leader.photoUrl} name={leader.name} color={leader.color} size={48} />
-            <div className="min-w-0 flex-1">
-              <h2 className="text-base font-semibold tracking-tight leading-tight [overflow-wrap:anywhere] sm:text-lg">
-                {leader.name}
-              </h2>
-              <p className="text-xs text-muted [overflow-wrap:anywhere] sm:text-sm">{leader.party}</p>
-              <p className="mt-1 text-sm font-medium text-brand-strong">
-                {tied
-                  ? `${leader.pct.toFixed(1)}% · empate en la cima`
-                  : `${leader.pct.toFixed(1)}% · +${board.leadIntendente.margin.toFixed(1)} pts`}
-              </p>
-            </div>
+        <div
+          className="mt-5 flex min-w-0 items-center gap-3 overflow-hidden rounded-xl border-2 p-2"
+          style={partySurface(leader.color, true)}
+        >
+          <CandidatePhoto src={leader.photoUrl} name={leader.name} color={leader.color} size={48} />
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-semibold tracking-tight leading-tight [overflow-wrap:anywhere] sm:text-lg">
+              {leader.name}
+            </h2>
+            <p className="text-xs text-muted [overflow-wrap:anywhere] sm:text-sm">{leader.party}</p>
+            <p className="mt-1 text-sm font-medium text-brand-strong">
+              {tied
+                ? `${leader.pct.toFixed(1)}% · empate en la cima`
+                : `${leader.pct.toFixed(1)}% · +${board.leadIntendente.margin.toFixed(1)} pts`}
+            </p>
           </div>
-          <div className="mt-5 space-y-3">
-            {top.map((row) => (
-              <div key={row.id} className="min-w-0">
-                <div className="mb-1 flex items-center justify-between gap-2 text-xs">
-                  <span className="flex min-w-0 items-center gap-2">
-                    <CandidatePhoto src={row.photoUrl} name={row.name} color={row.color} size={24} />
-                    <span className="truncate">{shortName(row.name)}</span>
-                  </span>
-                  <span className="mono shrink-0 text-muted">{row.pct.toFixed(1)}%</span>
-                </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-surface-2">
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${Math.max(6, (row.votes / max) * 100)}%`,
-                      background: row.color,
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      ) : (
-        <p className="mt-4 text-sm text-muted">Sé de las primeras personas en dejar tu intención de voto.</p>
-      )}
+        </div>
+      ) : null}
 
-      <p className="mt-5 text-xs text-muted">
-        <span className="mono">{board?.totalVotes ?? 0}</span> votos ·{" "}
-        <span className="mono">{board?.uniqueVisitors ?? 0}</span> visitantes
-      </p>
-      <Link href="/resultados" className="mt-3 inline-flex text-sm font-medium text-brand-strong">
+      {top.length ? (
+        <div className="mt-5 space-y-3">
+          {top.map((row) => (
+            <div key={row.id} className="min-w-0">
+              <div className="mb-1 flex items-center justify-between gap-2 text-xs">
+                <span className="flex min-w-0 items-center gap-2">
+                  <CandidatePhoto src={row.photoUrl} name={row.name} color={row.color} size={24} />
+                  <span className="truncate">{shortName(row.name)}</span>
+                </span>
+                <span className="mono shrink-0 text-muted">{row.pct.toFixed(1)}%</span>
+              </div>
+              <div className="h-1.5 overflow-hidden rounded-full bg-surface-2">
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${Math.max(6, (row.votes / max) * 100)}%`,
+                    background: row.color,
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      <Link href="/resultados" className="mt-5 inline-flex text-sm font-medium text-brand-strong">
         Ver el tablero →
       </Link>
     </aside>

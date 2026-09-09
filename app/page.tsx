@@ -1,23 +1,16 @@
+import { Suspense } from "react";
 import Link from "next/link";
-import { getBoard } from "@/lib/results";
-import { LiveCard } from "@/components/home/LiveCard";
+import { HomeLiveCard } from "@/components/home/HomeLiveCard";
+import { HomeKpis } from "@/components/home/HomeKpis";
+import { HomeKpisSkeleton, LiveCardSkeleton } from "@/components/home/HomeSkeletons";
 import { HowItWorks } from "@/components/home/HowItWorks";
 import { Transparency } from "@/components/home/Transparency";
 import { AboutProject } from "@/components/home/AboutProject";
 import { StickyCta } from "@/components/home/StickyCta";
-import { CountUp } from "@/components/CountUp";
 
 export const dynamic = "force-dynamic";
 
-function daysUntil(iso: string) {
-  const diff = new Date(iso).getTime() - Date.now();
-  return Math.max(0, Math.ceil(diff / 86_400_000));
-}
-
-export default async function HomePage() {
-  const board = await getBoard();
-  const closesAt = board?.election.closesAt ?? "2026-10-04T23:59:59-03:00";
-
+export default function HomePage() {
   return (
     <div className="pb-24 md:pb-0">
       <section className="mx-auto max-w-5xl px-4 pb-12 pt-10">
@@ -42,24 +35,14 @@ export default async function HomePage() {
               </Link>
             </div>
           </div>
-          <LiveCard board={board} />
+          <Suspense fallback={<LiveCardSkeleton />}>
+            <HomeLiveCard />
+          </Suspense>
         </div>
 
-        <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {[
-            ["Votos", board?.totalVotes ?? 0, ""],
-            ["Últimas 24 h", board?.votesLast24h ?? 0, ""],
-            ["Visitantes", board?.uniqueVisitors ?? 0, ""],
-            ["Cierra en", daysUntil(closesAt), " días"],
-          ].map(([label, value, suffix]) => (
-            <div key={String(label)} className="card p-4">
-              <p className="mono text-[11px] uppercase tracking-[0.14em] text-muted">{label}</p>
-              <p className="mt-2 text-2xl font-semibold tracking-tight">
-                <CountUp value={Number(value)} suffix={String(suffix)} />
-              </p>
-            </div>
-          ))}
-        </div>
+        <Suspense fallback={<HomeKpisSkeleton />}>
+          <HomeKpis />
+        </Suspense>
       </section>
 
       <div className="bg-surface">

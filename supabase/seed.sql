@@ -6,7 +6,7 @@ values (
   'Yaguarón',
   null,
   now() - interval '1 day',
-  timestamptz '2026-10-04 23:59:59-03',
+  timestamptz '2026-09-16 23:59:59-03',
   true
 );
 

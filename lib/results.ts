@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { rpc } from "@/lib/db";
 import type { Candidate, ChoiceCount, Election, RawResults } from "@/lib/types";
 
@@ -81,7 +82,7 @@ function lead(rows: RankedChoice[]) {
   };
 }
 
-export async function getBoard(): Promise<BoardData | null> {
+export const getBoard = cache(async function getBoard(): Promise<BoardData | null> {
   const election = await rpc<Election | null>("app_get_active_election");
   if (!election) return null;
 
@@ -106,4 +107,4 @@ export async function getBoard(): Promise<BoardData | null> {
     leadIntendente: lead(intendente),
     leadConcejal: lead(concejal),
   };
-}
+});

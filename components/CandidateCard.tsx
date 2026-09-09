@@ -7,10 +7,12 @@ export function CandidateCard({
   candidate,
   selected,
   onSelect,
+  hideParty = false,
 }: {
   candidate: Candidate;
   selected: boolean;
   onSelect: () => void;
+  hideParty?: boolean;
 }) {
   return (
     <button
@@ -29,9 +31,11 @@ export function CandidateCard({
       />
       <span className="min-w-0 flex-1 overflow-hidden">
         <span className="block font-medium leading-tight [overflow-wrap:anywhere]">{candidate.name}</span>
-        <span className="block text-sm font-medium [overflow-wrap:anywhere]" style={{ color: candidate.color }}>
-          {candidate.party}
-        </span>
+        {hideParty ? null : (
+          <span className="block text-sm font-medium [overflow-wrap:anywhere]" style={{ color: candidate.color }}>
+            {candidate.party}
+          </span>
+        )}
       </span>
       <span
         className="grid h-5 w-5 shrink-0 place-items-center rounded-full border-2"

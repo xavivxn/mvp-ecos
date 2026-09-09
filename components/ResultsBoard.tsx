@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CountUp } from "./CountUp";
 import { CandidatePhoto } from "./CandidatePhoto";
 import { LiveChip } from "./LiveChip";
 import { partySurface } from "@/lib/color";
@@ -19,10 +18,7 @@ function Bar({ row, max }: { row: RankedChoice; max: number }) {
             <p className="text-xs [overflow-wrap:anywhere] sm:text-sm" style={{ color: row.color }}>{row.party}</p>
           </div>
         </div>
-        <p className="shrink-0 text-right">
-          <span className="mono text-base sm:text-lg">{row.pct.toFixed(1)}%</span>
-          <span className="mt-0.5 block text-xs text-muted sm:ml-2 sm:mt-0 sm:inline">{row.votes} votos</span>
-        </p>
+        <p className="mono shrink-0 text-base sm:text-lg">{row.pct.toFixed(1)}%</p>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-surface-2">
         <div
@@ -76,9 +72,7 @@ function Race({
               : `${lead.leader.pct.toFixed(1)}% · +${lead.margin.toFixed(1)} pts`}
           </p>
         </div>
-      ) : (
-        <p className="text-sm text-muted">Todavía no hay votos en esta categoría.</p>
-      )}
+      ) : null}
       <div className="card space-y-5 p-5">
         {regular.map((row) => (
           <Bar key={row.id} row={row} max={max} />
@@ -132,22 +126,6 @@ export function ResultsBoard({ initial }: { initial: BoardData }) {
         <p className="mono text-xs text-muted" aria-live="polite">
           Actualizado hace {age}s
         </p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {[
-          ["Votos", board.totalVotes, 0, ""],
-          ["Últimas 24 h", board.votesLast24h, 0, ""],
-          ["Visitantes", board.uniqueVisitors, 0, ""],
-          ["Conversión", board.conversion, 1, "%"],
-        ].map(([label, value, digits, suffix]) => (
-          <div key={String(label)} className="card p-4">
-            <p className="mono text-[11px] uppercase tracking-[0.14em] text-muted">{label}</p>
-            <p className="mt-2 text-2xl font-semibold tracking-tight">
-              <CountUp value={Number(value)} digits={Number(digits)} suffix={String(suffix)} />
-            </p>
-          </div>
-        ))}
       </div>
 
       <div className="grid grid-cols-2 gap-1 rounded-xl bg-surface p-1 lg:hidden">
