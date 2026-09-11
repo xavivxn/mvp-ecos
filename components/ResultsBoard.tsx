@@ -7,14 +7,27 @@ import { RestAccordion } from "./RestAccordion";
 import { CountUp } from "./CountUp";
 import { LeadHero } from "./LeadHero";
 import { LiveChip } from "./LiveChip";
+import { PlaceMark } from "./TieNotices";
 import { partySurface } from "@/lib/color";
 import { boardNow, cssPct, formatLastVote, isPulseHot, showsCloseUrgency } from "@/lib/pulse";
 import { useResultsPoll } from "@/lib/useResultsPoll";
 import { useCloseRemaining } from "@/lib/usePreviewClose";
 import type { BoardData, RankedChoice } from "@/lib/results";
-import { competitionPlace, splitJunta } from "@/lib/results";
+import { competitionPlace, firstPlaceTiedWith, splitJunta, tiedChoiceIds, tieGroups } from "@/lib/results";
 
-function Bar({ row, max, place, final = false }: { row: RankedChoice; max: number; place?: number; final?: boolean }) {
+function Bar({
+  row,
+  max,
+  place,
+  tied = false,
+  final = false,
+}: {
+  row: RankedChoice;
+  max: number;
+  place?: number;
+  tied?: boolean;
+  final?: boolean;
+}) {
   const width = max ? Math.max(4, (row.votes / max) * 100) : 4;
   const first = place === 1 && !row.isSpecial;
   return (
@@ -24,9 +37,7 @@ function Bar({ row, max, place, final = false }: { row: RankedChoice; max: numbe
     >
       <div className="flex items-start justify-between gap-2 sm:items-center sm:gap-3">
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          {place ? (
-            <span className="mono w-6 shrink-0 text-sm text-muted">{place}°</span>
-          ) : null}
+          <PlaceMark place={place} tied={tied} />
           <CandidatePhoto src={row.photoUrl} name={row.name} color={row.color} size={row.photoUrl ? 48 : 36} />
           <div className="min-w-0">
             <p className="font-medium leading-tight [overflow-wrap:anywhere]">{row.name}</p>
@@ -67,16 +78,14 @@ function Race({
   const split = cutoff ? splitJunta(regular, cutoff) : null;
   const shown = split ? split.inJunta : regular;
   const hidden = split ? split.outJunta : [];
+  const ties = tieGroups(regular);
+  const tiedIds = tiedChoiceIds(ties);
+  const tiedWith = firstPlaceTiedWith(ties, lead.leader?.id);
 
   return (
     <section className="space-y-4">
       <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
-      {split?.tiedAtCut ? (
-        <p className="text-sm text-muted">
-          Empate en el {cutoff}°: no dejamos afuera a quien igualó. Se muestran {shown.length}.
-        </p>
-      ) : null}
-      <LeadHero lead={lead} challenger={challenger} final={final} />
+      <LeadHero lead={lead} challenger={challenger} tiedWith={tiedWith} final={final} />
       <div className="card space-y-5 p-5">
         {shown.map((row, index) => (
           <Bar
@@ -84,6 +93,7 @@ function Race({
             row={row}
             max={max}
             place={competitionPlace(regular, index)}
+            tied={tiedIds.has(row.id)}
             final={final}
           />
         ))}
@@ -106,6 +116,7 @@ function Race({
                   row={row}
                   max={max}
                   place={competitionPlace(regular, shown.length + index)}
+                  tied={tiedIds.has(row.id)}
                   final={final}
                 />
               ))}

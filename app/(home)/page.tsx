@@ -8,15 +8,17 @@ import { Transparency } from "@/components/home/Transparency";
 import { AboutProject } from "@/components/home/AboutProject";
 import { StickyCta } from "@/components/home/StickyCta";
 import { RecapHome } from "@/components/recap/RecapHome";
+import { RecapHomeSkeleton } from "@/components/recap/RecapSkeletons";
 import { recapShare } from "@/lib/recap";
 import { getBoard } from "@/lib/results";
+import { getElection } from "@/lib/survey";
 import { isClosingWindow, msUntil } from "@/lib/pulse";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const board = await getBoard();
-  if (board && !board.election.isOpen) {
+  const election = await getElection();
+  if (election && !election.isOpen) {
     return {
       title: recapShare.title,
       description: recapShare.description,
@@ -99,21 +101,26 @@ async function HomeSwitch() {
   );
 }
 
-export default function HomePage() {
+function OpenHomeFallback() {
   return (
-    <Suspense
-      fallback={
-        <div className="pb-24 md:pb-0">
-          <section className="mx-auto max-w-5xl px-4 pb-12 pt-10">
-            <div className="grid min-w-0 items-start gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-              <HomeHero />
-              <LiveCardSkeleton />
-            </div>
-            <HomeKpisSkeleton />
-          </section>
+    <div className="pb-24 md:pb-0">
+      <section className="mx-auto max-w-5xl px-4 pb-12 pt-10">
+        <div className="grid min-w-0 items-start gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+          <HomeHero />
+          <LiveCardSkeleton />
         </div>
-      }
-    >
+        <HomeKpisSkeleton />
+      </section>
+    </div>
+  );
+}
+
+export default async function HomePage() {
+  const election = await getElection();
+  const closed = Boolean(election && !election.isOpen);
+
+  return (
+    <Suspense fallback={closed ? <RecapHomeSkeleton /> : <OpenHomeFallback />}>
       <HomeSwitch />
     </Suspense>
   );

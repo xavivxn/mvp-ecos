@@ -5,22 +5,20 @@ import { Trophy } from "lucide-react";
 import { CandidatePhoto } from "@/components/CandidatePhoto";
 import { CountUp } from "@/components/CountUp";
 import { partySurface } from "@/lib/color";
-import { formatInt } from "@/lib/format";
+import { formatEsList, formatInt, shortName } from "@/lib/format";
 import type { BoardData, RankedChoice } from "@/lib/results";
-
-function shortName(name: string) {
-  return name.replace(/^(Ing\.|Prof\.|Profe\.)\s+/i, "");
-}
 
 export function LeadHero({
   lead,
   challenger,
+  tiedWith = [],
   compact = false,
   final = false,
   showVotes = false,
 }: {
   lead: BoardData["leadIntendente"];
   challenger?: RankedChoice | null;
+  tiedWith?: RankedChoice[];
   compact?: boolean;
   final?: boolean;
   showVotes?: boolean;
@@ -28,7 +26,7 @@ export function LeadHero({
   const leader = lead.leader;
   const [flash, setFlash] = useState(false);
   const prevId = useRef<string | undefined>(leader?.id);
-  const tied = Boolean(leader && Math.abs(lead.margin) < 0.05);
+  const tied = tiedWith.length > 0;
 
   useEffect(() => {
     const id = leader?.id;
@@ -45,6 +43,7 @@ export function LeadHero({
 
   const photo = compact ? 64 : 96;
   const rival = challenger && !challenger.isSpecial ? shortName(challenger.name) : null;
+  const tiedNames = formatEsList(tiedWith.map((row) => shortName(row.name)));
 
   return (
     <div
@@ -104,7 +103,9 @@ export function LeadHero({
           </p>
           <p className="mt-1 text-sm font-medium text-brand-strong">
             {tied
-              ? "Empate en la cima"
+              ? final
+                ? `Empate en el 1°: empataron con ${tiedNames}`
+                : `Empate en el 1° con ${tiedNames}`
               : rival
                 ? (
                     <>

@@ -81,6 +81,42 @@ export function competitionPlace(rows: RankedChoice[], index: number) {
   return rows.filter((row) => row.votes > votes).length + 1;
 }
 
+export type TieGroup = {
+  place: number;
+  votes: number;
+  rows: RankedChoice[];
+};
+
+export function tieGroups(rows: RankedChoice[]): TieGroup[] {
+  const regular = rows.filter((row) => !row.isSpecial);
+  const groups: TieGroup[] = [];
+  let i = 0;
+  while (i < regular.length) {
+    const votes = regular[i]?.votes ?? 0;
+    let end = i + 1;
+    while (end < regular.length && regular[end]?.votes === votes) end += 1;
+    if (votes > 0 && end - i >= 2) {
+      groups.push({
+        place: competitionPlace(regular, i),
+        votes,
+        rows: regular.slice(i, end),
+      });
+    }
+    i = end;
+  }
+  return groups;
+}
+
+export function tiedChoiceIds(groups: TieGroup[]) {
+  return new Set(groups.flatMap((group) => group.rows.map((row) => row.id)));
+}
+
+export function firstPlaceTiedWith(groups: TieGroup[], leaderId?: string | null) {
+  const top = groups.find((group) => group.place === 1);
+  if (!top || !leaderId) return [] as RankedChoice[];
+  return top.rows.filter((row) => row.id !== leaderId);
+}
+
 export function splitJunta(regular: RankedChoice[], seats = JUNTA_SEATS) {
   if (regular.length <= seats) {
     return { inJunta: regular, outJunta: [] as RankedChoice[], tiedAtCut: false };

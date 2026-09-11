@@ -1,21 +1,24 @@
 import { CandidatePhoto } from "@/components/CandidatePhoto";
 import { LeadHero } from "@/components/LeadHero";
 import { RestAccordion } from "@/components/RestAccordion";
+import { PlaceMark } from "@/components/TieNotices";
 import { partySurface } from "@/lib/color";
 import { cssPct } from "@/lib/pulse";
 import { formatInt, formatPct } from "@/lib/format";
 import type { BoardData, RankedChoice } from "@/lib/results";
-import { competitionPlace, JUNTA_SEATS, splitJunta } from "@/lib/results";
+import { competitionPlace, firstPlaceTiedWith, JUNTA_SEATS, splitJunta, tiedChoiceIds, tieGroups } from "@/lib/results";
 
 function Row({
   row,
   max,
   place,
+  tied = false,
   muted = false,
 }: {
   row: RankedChoice;
   max: number;
   place?: number;
+  tied?: boolean;
   muted?: boolean;
 }) {
   const width = max ? Math.max(4, (row.votes / max) * 100) : 4;
@@ -26,7 +29,7 @@ function Row({
     >
       <div className="flex items-start justify-between gap-2 sm:items-center sm:gap-3">
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          {place ? <span className="mono w-6 shrink-0 text-sm text-muted">{place}°</span> : null}
+          <PlaceMark place={place} tied={tied} />
           <CandidatePhoto src={row.photoUrl} name={row.name} color={row.color} size={row.photoUrl ? 48 : 36} />
           <div className="min-w-0">
             <p className="font-medium leading-tight [overflow-wrap:anywhere]">{row.name}</p>
@@ -57,14 +60,23 @@ export function RecapIntendente({ board }: { board: BoardData }) {
   const special = board.intendente.filter((r) => r.isSpecial);
   const max = Math.max(...board.intendente.map((r) => r.votes), 1);
   const challenger = regular[1] ?? null;
+  const ties = tieGroups(regular);
+  const tiedIds = tiedChoiceIds(ties);
+  const tiedWith = firstPlaceTiedWith(ties, board.leadIntendente.leader?.id);
 
   return (
     <section id="intendencia" className="scroll-mt-20 space-y-4">
       <h2 className="text-2xl font-semibold tracking-tight">Intendencia</h2>
-      <LeadHero lead={board.leadIntendente} challenger={challenger} final showVotes />
+      <LeadHero lead={board.leadIntendente} challenger={challenger} tiedWith={tiedWith} final showVotes />
       <div className="card space-y-4 p-5">
         {regular.map((row, index) => (
-          <Row key={row.id} row={row} max={max} place={index + 1} />
+          <Row
+            key={row.id}
+            row={row}
+            max={max}
+            place={competitionPlace(regular, index)}
+            tied={tiedIds.has(row.id)}
+          />
         ))}
         {special.map((row) => (
           <Row key={row.id} row={row} max={max} />
@@ -80,19 +92,23 @@ export function RecapConcejal({ board }: { board: BoardData }) {
   const { inJunta, outJunta, tiedAtCut } = splitJunta(regular, JUNTA_SEATS);
   const max = Math.max(...board.concejal.map((r) => r.votes), 1);
   const challenger = regular[1] ?? null;
+  const ties = tieGroups(regular);
+  const tiedIds = tiedChoiceIds(ties);
+  const tiedWith = firstPlaceTiedWith(ties, board.leadConcejal.leader?.id);
 
   return (
     <section id="concejalía" className="scroll-mt-20 space-y-4">
       <h2 className="text-2xl font-semibold tracking-tight">Concejalía</h2>
-      <p className="text-sm text-muted">
-        {tiedAtCut
-          ? `La Junta son ${JUNTA_SEATS}. Hay empate en el último lugar: esta encuesta no deja afuera a quien igualó, así que se muestran ${inJunta.length}.`
-          : `Los ${JUNTA_SEATS} primeros, según esta encuesta, serían quienes ingresan a la Junta.`}
-      </p>
-      <LeadHero lead={board.leadConcejal} challenger={challenger} final showVotes />
+      <LeadHero lead={board.leadConcejal} challenger={challenger} tiedWith={tiedWith} final showVotes />
       <div className="card space-y-4 p-5">
         {inJunta.map((row, index) => (
-          <Row key={row.id} row={row} max={max} place={competitionPlace(regular, index)} />
+          <Row
+            key={row.id}
+            row={row}
+            max={max}
+            place={competitionPlace(regular, index)}
+            tied={tiedIds.has(row.id)}
+          />
         ))}
         <p className="mono text-center text-[11px] uppercase tracking-[0.14em] text-muted">
           {tiedAtCut
@@ -106,6 +122,7 @@ export function RecapConcejal({ board }: { board: BoardData }) {
               row={row}
               max={max}
               place={competitionPlace(regular, inJunta.length + index)}
+              tied={tiedIds.has(row.id)}
               muted
             />
           ))}

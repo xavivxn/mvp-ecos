@@ -1,18 +1,15 @@
 import Link from "next/link";
-import type { BoardData } from "@/lib/results";
 import { CandidatePhoto } from "@/components/CandidatePhoto";
 import { CloseUrgency } from "@/components/CloseUrgency";
 import { CountUp } from "@/components/CountUp";
 import { LeadHero } from "@/components/LeadHero";
 import { LiveChip } from "@/components/LiveChip";
 import { partySurface } from "@/lib/color";
+import { shortName } from "@/lib/format";
 import { partyAbbr } from "@/lib/party";
 import { formatLastVote, isPulseHot, cssPct, showsCloseUrgency } from "@/lib/pulse";
+import { firstPlaceTiedWith, tieGroups, type BoardData } from "@/lib/results";
 import { useCloseRemaining } from "@/lib/usePreviewClose";
-
-function shortName(name: string) {
-  return name.replace(/^Ing\.\s+/i, "");
-}
 
 export function LiveCard({
   board,
@@ -30,6 +27,7 @@ export function LiveCard({
   const regular = (board?.intendente ?? []).filter((r) => !r.isSpecial);
   const top = regular.slice(0, 3);
   const challenger = regular[1] ?? null;
+  const tiedWith = firstPlaceTiedWith(tieGroups(regular), leader?.id);
   const max = Math.max(...top.map((r) => r.votes), 1);
   const hasVotes = Boolean(board && board.totalVotes > 0 && leader);
   const hot = isPulseHot(board?.lastVoteAt, now);
@@ -92,7 +90,7 @@ export function LiveCard({
 
       {hasVotes && board ? (
         <div className="mt-5">
-          <LeadHero lead={board.leadIntendente} challenger={challenger} compact />
+          <LeadHero lead={board.leadIntendente} challenger={challenger} tiedWith={tiedWith} compact />
         </div>
       ) : null}
 
