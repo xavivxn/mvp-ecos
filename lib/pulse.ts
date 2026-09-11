@@ -22,8 +22,84 @@ export function formatLastVote(lastVoteAt: string | null | undefined, now = Date
   return `Último voto hace ${days} d`;
 }
 
+export const DAY_MS = 86_400_000;
+export const HOUR_MS = 3_600_000;
+
+function pad2(n: number) {
+  return String(n).padStart(2, "0");
+}
+
 export function daysUntil(iso: string, now = Date.now()) {
-  return Math.max(0, Math.ceil((new Date(iso).getTime() - now) / 86_400_000));
+  return Math.max(0, Math.ceil((new Date(iso).getTime() - now) / DAY_MS));
+}
+
+export function msUntil(iso: string, now = Date.now()) {
+  const t = new Date(iso).getTime();
+  if (!Number.isFinite(t)) return 0;
+  return Math.max(0, t - now);
+}
+
+export function isClosingWindow(msRemaining: number) {
+  return msRemaining > 0 && msRemaining <= DAY_MS;
+}
+
+export function closeHeat(msRemaining: number) {
+  if (msRemaining <= 0) return 1;
+  if (msRemaining >= DAY_MS) return 0;
+  return 1 - msRemaining / DAY_MS;
+}
+
+export function closeUrgencyHeat(msRemaining: number) {
+  if (msRemaining > DAY_MS) return 0;
+  return 0.38 + closeHeat(msRemaining) * 0.62;
+}
+
+export function closePulseDuration(msRemaining: number) {
+  return `${Math.max(0.55, 1.85 - closeHeat(msRemaining) * 1.25).toFixed(2)}s`;
+}
+
+export function closeTint(heat: number, from = "var(--muted)", to = "var(--danger)") {
+  const h = Math.min(1, Math.max(0, heat));
+  return `color-mix(in srgb, ${from} ${Math.round((1 - h) * 100)}%, ${to} ${Math.round(h * 100)}%)`;
+}
+
+export function showsCloseUrgency(remaining: number | null | undefined, preview = false) {
+  if (preview) return true;
+  if (remaining == null || !Number.isFinite(remaining)) return false;
+  return isClosingWindow(remaining);
+}
+
+export function closeSrLabel(remaining: number) {
+  if (remaining <= 0) return "La encuesta cerró.";
+  if (remaining <= HOUR_MS) {
+    const mins = Math.max(1, Math.ceil(remaining / 60_000));
+    return mins === 1 ? "Cierra ahora, queda 1 minuto." : `Cierra ahora, quedan ${mins} minutos.`;
+  }
+  const hours = Math.max(1, Math.ceil(remaining / HOUR_MS));
+  return hours === 1 ? "Cierra hoy, queda 1 hora." : `Cierra hoy, quedan ${hours} horas.`;
+}
+
+export function formatRemainingClock(ms: number) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const hours = Math.floor(total / 3600);
+  const mins = Math.floor((total % 3600) / 60);
+  const secs = total % 60;
+  return `${pad2(hours)}:${pad2(mins)}:${pad2(secs)}`;
+}
+
+export const PREVIEW_CLOSE_REAL_MS = 60_000;
+export const PREVIEW_CLOSE_PAUSE_MS = 1_800;
+
+export function previewCloseRemaining(startedAt: number, now = Date.now()) {
+  const elapsed = Math.max(0, now - startedAt);
+  if (elapsed >= PREVIEW_CLOSE_REAL_MS) return 0;
+  return Math.max(0, Math.round((1 - elapsed / PREVIEW_CLOSE_REAL_MS) * DAY_MS));
+}
+
+export function elapsedAtRemaining(opensAt: string, closesAt: string, remaining: number) {
+  const close = new Date(closesAt).getTime();
+  if (!Number.isFinite(close)) return 0;
+  return surveyElapsedPct(opensAt, closesAt, close - remaining);
 }
 
 export function surveyElapsedPct(opensAt: string, closesAt: string, now = Date.now()) {

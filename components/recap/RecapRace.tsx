@@ -3,8 +3,9 @@ import { LeadHero } from "@/components/LeadHero";
 import { RestAccordion } from "@/components/RestAccordion";
 import { partySurface } from "@/lib/color";
 import { cssPct } from "@/lib/pulse";
-import { formatPct } from "@/lib/format";
+import { formatInt, formatPct } from "@/lib/format";
 import type { BoardData, RankedChoice } from "@/lib/results";
+import { competitionPlace, JUNTA_SEATS, splitJunta } from "@/lib/results";
 
 function Row({
   row,
@@ -34,7 +35,12 @@ function Row({
             </p>
           </div>
         </div>
-        <p className="mono shrink-0 text-base sm:text-lg">{formatPct(row.pct)}</p>
+        <p className="mono shrink-0 text-right">
+          <span className="block text-base sm:text-lg">{formatPct(row.pct)}</span>
+          <span className="block text-[11px] text-muted">
+            {formatInt(row.votes)} {row.votes === 1 ? "voto" : "votos"}
+          </span>
+        </p>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-surface-2">
         <div
@@ -55,7 +61,7 @@ export function RecapIntendente({ board }: { board: BoardData }) {
   return (
     <section id="intendencia" className="scroll-mt-20 space-y-4">
       <h2 className="text-2xl font-semibold tracking-tight">Intendencia</h2>
-      <LeadHero lead={board.leadIntendente} challenger={challenger} final />
+      <LeadHero lead={board.leadIntendente} challenger={challenger} final showVotes />
       <div className="card space-y-4 p-5">
         {regular.map((row, index) => (
           <Row key={row.id} row={row} max={max} place={index + 1} />
@@ -71,26 +77,37 @@ export function RecapIntendente({ board }: { board: BoardData }) {
 export function RecapConcejal({ board }: { board: BoardData }) {
   const regular = board.concejal.filter((r) => !r.isSpecial);
   const special = board.concejal.filter((r) => r.isSpecial);
-  const inJunta = regular.slice(0, 12);
-  const outJunta = regular.slice(12);
+  const { inJunta, outJunta, tiedAtCut } = splitJunta(regular, JUNTA_SEATS);
   const max = Math.max(...board.concejal.map((r) => r.votes), 1);
   const challenger = regular[1] ?? null;
 
   return (
     <section id="concejalía" className="scroll-mt-20 space-y-4">
       <h2 className="text-2xl font-semibold tracking-tight">Concejalía</h2>
-      <p className="text-sm text-muted">Los 12 primeros, según esta encuesta, serían quienes ingresan a la Junta.</p>
-      <LeadHero lead={board.leadConcejal} challenger={challenger} final />
+      <p className="text-sm text-muted">
+        {tiedAtCut
+          ? `La Junta son ${JUNTA_SEATS}. Hay empate en el último lugar: esta encuesta no deja afuera a quien igualó, así que se muestran ${inJunta.length}.`
+          : `Los ${JUNTA_SEATS} primeros, según esta encuesta, serían quienes ingresan a la Junta.`}
+      </p>
+      <LeadHero lead={board.leadConcejal} challenger={challenger} final showVotes />
       <div className="card space-y-4 p-5">
         {inJunta.map((row, index) => (
-          <Row key={row.id} row={row} max={max} place={index + 1} />
+          <Row key={row.id} row={row} max={max} place={competitionPlace(regular, index)} />
         ))}
         <p className="mono text-center text-[11px] uppercase tracking-[0.14em] text-muted">
-          Entran 12
+          {tiedAtCut
+            ? `Empate en el ${JUNTA_SEATS}° · ingresarían ${inJunta.length}`
+            : `Entran ${JUNTA_SEATS}`}
         </p>
         <RestAccordion label="Ver el resto de la lista" count={outJunta.length + special.length}>
           {outJunta.map((row, index) => (
-            <Row key={row.id} row={row} max={max} place={index + 13} muted />
+            <Row
+              key={row.id}
+              row={row}
+              max={max}
+              place={competitionPlace(regular, inJunta.length + index)}
+              muted
+            />
           ))}
           {special.length ? (
             <div className="border-t border-line pt-4">

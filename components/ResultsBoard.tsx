@@ -2,14 +2,17 @@
 
 import { useState } from "react";
 import { CandidatePhoto } from "./CandidatePhoto";
+import { CloseUrgency } from "./CloseUrgency";
 import { RestAccordion } from "./RestAccordion";
 import { CountUp } from "./CountUp";
 import { LeadHero } from "./LeadHero";
 import { LiveChip } from "./LiveChip";
 import { partySurface } from "@/lib/color";
-import { boardNow, cssPct, formatLastVote, isPulseHot } from "@/lib/pulse";
+import { boardNow, cssPct, formatLastVote, isPulseHot, showsCloseUrgency } from "@/lib/pulse";
 import { useResultsPoll } from "@/lib/useResultsPoll";
+import { useCloseRemaining } from "@/lib/usePreviewClose";
 import type { BoardData, RankedChoice } from "@/lib/results";
+import { competitionPlace, splitJunta } from "@/lib/results";
 
 function Bar({ row, max, place, final = false }: { row: RankedChoice; max: number; place?: number; final?: boolean }) {
   const width = max ? Math.max(4, (row.votes / max) * 100) : 4;
@@ -61,22 +64,36 @@ function Race({
   const special = rows.filter((r) => r.isSpecial);
   const max = Math.max(...rows.map((r) => r.votes), 1);
   const challenger = regular[1] ?? null;
-  const shown = cutoff ? regular.slice(0, cutoff) : regular;
-  const hidden = cutoff ? regular.slice(cutoff) : [];
+  const split = cutoff ? splitJunta(regular, cutoff) : null;
+  const shown = split ? split.inJunta : regular;
+  const hidden = split ? split.outJunta : [];
 
   return (
     <section className="space-y-4">
       <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
+      {split?.tiedAtCut ? (
+        <p className="text-sm text-muted">
+          Empate en el {cutoff}°: no dejamos afuera a quien igualó. Se muestran {shown.length}.
+        </p>
+      ) : null}
       <LeadHero lead={lead} challenger={challenger} final={final} />
       <div className="card space-y-5 p-5">
         {shown.map((row, index) => (
-          <Bar key={row.id} row={row} max={max} place={index + 1} final={final} />
+          <Bar
+            key={row.id}
+            row={row}
+            max={max}
+            place={competitionPlace(regular, index)}
+            final={final}
+          />
         ))}
         {cutoff ? (
           <>
-            {hidden.length ? (
+            {hidden.length || split?.tiedAtCut ? (
               <p className="mono text-center text-[11px] uppercase tracking-[0.14em] text-muted">
-                Entran {cutoff}
+                {split?.tiedAtCut
+                  ? `Empate en el ${cutoff}° · ingresarían ${shown.length}`
+                  : `Entran ${cutoff}`}
               </p>
             ) : null}
             <RestAccordion
@@ -84,7 +101,13 @@ function Race({
               count={hidden.length + special.length}
             >
               {hidden.map((row, index) => (
-                <Bar key={row.id} row={row} max={max} place={cutoff + index + 1} final={final} />
+                <Bar
+                  key={row.id}
+                  row={row}
+                  max={max}
+                  place={competitionPlace(regular, shown.length + index)}
+                  final={final}
+                />
               ))}
               {special.length ? (
                 <div className="border-t border-line pt-4">
@@ -117,12 +140,22 @@ function Race({
   );
 }
 
-export function ResultsBoard({ initial, final = false }: { initial: BoardData; final?: boolean }) {
+export function ResultsBoard({
+  initial,
+  final = false,
+  previewCloseCountdown = false,
+}: {
+  initial: BoardData;
+  final?: boolean;
+  previewCloseCountdown?: boolean;
+}) {
   const { board: live, age } = useResultsPoll(initial, !final);
   const board = live ?? initial;
   const [tab, setTab] = useState<"intendente" | "concejal">("intendente");
   const now = boardNow(board.generatedAt, age);
   const hot = !final && isPulseHot(board.lastVoteAt, now);
+  const remaining = useCloseRemaining(board.election.closesAt, previewCloseCountdown);
+  const closing = !final && showsCloseUrgency(remaining, previewCloseCountdown);
 
   return (
     <div className="space-y-6">
@@ -136,6 +169,21 @@ export function ResultsBoard({ initial, final = false }: { initial: BoardData; f
         )}
         {final ? (
           <p className="mono min-w-0 truncate text-xs text-muted">Encuesta cerrada</p>
+        ) : closing ? (
+          <>
+            <CloseUrgency
+              closesAt={board.election.closesAt}
+              remaining={remaining}
+              preview={previewCloseCountdown}
+              className="min-w-0 flex-1 text-[11px] sm:text-xs"
+            />
+            <span className="hidden text-muted/50 sm:inline" aria-hidden>
+              ·
+            </span>
+            <p className="mono ml-auto shrink-0 text-xs text-muted" aria-live="polite">
+              Actualizado hace {age}s
+            </p>
+          </>
         ) : (
           <>
             <p className="sr-only sm:not-sr-only sm:min-w-0 sm:flex-1 sm:truncate sm:text-xs sm:text-muted">

@@ -11,7 +11,8 @@ type RpcName =
   | "app_create_session"
   | "app_cast_vote"
   | "app_get_results"
-  | "app_record_visit";
+  | "app_record_visit"
+  | "app_record_recap_event";
 
 export async function rpc<T>(name: RpcName, args: Record<string, unknown> = {}): Promise<T> {
   const { data, error } = await supabaseAdmin().rpc(name, {

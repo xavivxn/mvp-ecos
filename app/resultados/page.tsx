@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { ResultsBoard } from "@/components/ResultsBoard";
+import { env } from "@/lib/env";
 import { getBoard } from "@/lib/results";
 
 export const dynamic = "force-dynamic";
@@ -30,8 +32,15 @@ export default async function ResultadosPage() {
           ? "La encuesta ya cerró. Estos números no se mueven más. El voto es secreto: acá no aparece ninguna cédula."
           : "Resultados agregados en vivo. El voto es secreto: acá no aparece ninguna cédula."}
       </p>
+      {closed ? (
+        <p className="mt-4">
+          <Link href="/" className="text-sm font-medium text-brand-strong hover:underline">
+            Ver el acta completa
+          </Link>
+        </p>
+      ) : null}
       <div className="mt-8">
-        <ResultsBoard initial={board} final={closed} />
+        <ResultsBoard initial={board} final={closed} previewCloseCountdown={env.previewCloseCountdown} />
       </div>
     </div>
   );

@@ -28,7 +28,7 @@ Cédula de prueba en mock: cualquier número de 5 a 10 dígitos, excepto `999999
 ```bash
 npm run spike:padron   # parsea data/padron/*.md y verifica 24.643 electores
 npm run seed:padron    # hashea y carga el padrón en Supabase
-PADRON_MODE=db npm run check:padron  # lookup real / fecha mala / cédula inexistente
+PADRON_MODE=db npm run check:padron  # lookup (cédula propia via CHECK_PADRON_* en .env.local)
 RESET_SURVEY=yes npm run reset:survey  # vacía votos, registry y visitas (pide SUPABASE_DB_URL)
 npm run build
 ```
@@ -63,6 +63,16 @@ npx vercel --prod
 ```
 
 Sin esas variables el build llega a “Collecting page data” y las API routes no pueden hablar con Supabase.
+
+## Cierre (no hay que tocar nada el 16)
+
+La encuesta sigue abierta mientras `now() <= elections.closes_at` (16 sep 2026, 23:59 hora Paraguay).
+
+- Hasta el 15 a la noche: home y resultados en vivo, CTA de votar.
+- Últimas 24 horas: reloj, chip “Últimas 24 horas” y aviso en `/votar`. Sale solo.
+- Después del cierre: la home pasa al acta, `/votar` deja de aceptar votos, el OG se actualiza sin redesplegar.
+
+No pongas `FORCE_SURVEY_CLOSED` ni `PREVIEW_CLOSE_COUNTDOWN` en Vercel Production: se ignoran ahí. Sirven solo para preview/local.
 
 ## Lanzamiento con candidatos reales
 

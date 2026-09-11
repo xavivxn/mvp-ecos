@@ -9,9 +9,11 @@ import type { BoardData } from "@/lib/results";
 
 export function HomePulse({
   initial,
+  previewCloseCountdown = false,
   children,
 }: {
   initial: BoardData | null;
+  previewCloseCountdown?: boolean;
   children: ReactNode;
 }) {
   const { board, age } = useResultsPoll(initial);
@@ -21,9 +23,9 @@ export function HomePulse({
     <>
       <div className="grid min-w-0 items-start gap-8 lg:grid-cols-[1.15fr_0.85fr]">
         {children}
-        <LiveCard board={board} now={now} />
+        <LiveCard board={board} now={now} previewCloseCountdown={previewCloseCountdown} />
       </div>
-      <HomeKpis board={board} now={now} />
+      <HomeKpis board={board} now={now} previewCloseCountdown={previewCloseCountdown} />
     </>
   );
 }

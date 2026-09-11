@@ -14,8 +14,8 @@ export async function SiteHeader() {
           <Logo />
         </div>
         <Link
-          href="/resultados"
-          aria-label={closed ? "Resultado final" : "Resultados en vivo"}
+          href={closed ? "/" : "/resultados"}
+          aria-label={closed ? "Acta de cierre" : "Resultados en vivo"}
           className="btn-secondary h-10 min-h-10 gap-1.5 whitespace-nowrap px-2 text-sm sm:gap-2 sm:px-4"
         >
           {closed ? (
@@ -26,17 +26,17 @@ export async function SiteHeader() {
           ) : (
             <LiveChip compact />
           )}
-          Resultados
+          {closed ? "Acta" : "Resultados"}
         </Link>
         <nav className="flex min-w-0 items-center justify-end gap-1 sm:gap-1.5">
-          <Link
-            href={closed ? "/#tecnica" : "/#como-funciona"}
-            className="btn-ghost hidden text-sm md:inline-flex"
-          >
+          <Link href="/#como-funciona" className="btn-ghost hidden text-sm md:inline-flex">
             Cómo funciona
           </Link>
           {closed ? (
-            <Link href="/" className="btn-primary h-10 min-h-10 whitespace-nowrap px-3 text-sm sm:px-4">
+            <Link
+              href="/#intendencia"
+              className="btn-primary h-10 min-h-10 whitespace-nowrap px-3 text-sm sm:px-4"
+            >
               Resumen
             </Link>
           ) : (

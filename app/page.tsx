@@ -8,7 +8,9 @@ import { Transparency } from "@/components/home/Transparency";
 import { AboutProject } from "@/components/home/AboutProject";
 import { StickyCta } from "@/components/home/StickyCta";
 import { RecapHome } from "@/components/recap/RecapHome";
+import { recapShare } from "@/lib/recap";
 import { getBoard } from "@/lib/results";
+import { isClosingWindow, msUntil } from "@/lib/pulse";
 
 export const dynamic = "force-dynamic";
 
@@ -16,9 +18,19 @@ export async function generateMetadata(): Promise<Metadata> {
   const board = await getBoard();
   if (board && !board.election.isOpen) {
     return {
-      title: "Así cerró Ecos · Yaguarón",
-      description:
-        "Resultado final de la encuesta ciudadana de Ecos en Yaguarón. No es un cómputo oficial del TSJE.",
+      title: recapShare.title,
+      description: recapShare.description,
+      openGraph: {
+        title: recapShare.title,
+        description: recapShare.description,
+        locale: "es_PY",
+        type: "website",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: recapShare.title,
+        description: recapShare.description,
+      },
     };
   }
   return {
@@ -28,12 +40,18 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-function HomeHero() {
+function HomeHero({ closing = false }: { closing?: boolean }) {
   return (
     <div className="min-w-0">
-      <p className="chip bg-brand-soft text-brand-strong">
-        <span className="mono">Elecciones Municipales 2026 · Yaguarón</span>
-      </p>
+      {closing ? (
+        <p className="chip bg-danger-soft text-danger">
+          <span className="mono">Últimas 24 horas para votar</span>
+        </p>
+      ) : (
+        <p className="chip bg-brand-soft text-brand-strong">
+          <span className="mono">Elecciones Municipales 2026 · Yaguarón</span>
+        </p>
+      )}
       <h1 className="mt-4 max-w-xl text-4xl font-semibold tracking-tight sm:text-5xl">
         Encuesta de Ecos Yaguarón.
       </h1>
@@ -59,11 +77,13 @@ async function HomeSwitch() {
     return <RecapHome board={board} />;
   }
 
+  const closing = board ? isClosingWindow(msUntil(board.election.closesAt)) : false;
+
   return (
     <div className="pb-24 md:pb-0">
       <section className="mx-auto max-w-5xl px-4 pb-12 pt-10">
         <HomeLiveCard>
-          <HomeHero />
+          <HomeHero closing={closing} />
         </HomeLiveCard>
       </section>
 

@@ -56,6 +56,11 @@ export const env = {
     if (value !== "true" && value !== "1") return false;
     return process.env.VERCEL_ENV !== "production";
   },
+  get previewCloseCountdown() {
+    const value = process.env.PREVIEW_CLOSE_COUNTDOWN?.trim().toLowerCase();
+    if (value !== "true" && value !== "1") return false;
+    return process.env.VERCEL_ENV !== "production";
+  },
 };
 
 export const publicEnv = {

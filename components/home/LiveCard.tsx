@@ -1,18 +1,28 @@
 import Link from "next/link";
 import type { BoardData } from "@/lib/results";
 import { CandidatePhoto } from "@/components/CandidatePhoto";
+import { CloseUrgency } from "@/components/CloseUrgency";
 import { CountUp } from "@/components/CountUp";
 import { LeadHero } from "@/components/LeadHero";
 import { LiveChip } from "@/components/LiveChip";
 import { partySurface } from "@/lib/color";
 import { partyAbbr } from "@/lib/party";
-import { formatLastVote, isPulseHot, cssPct } from "@/lib/pulse";
+import { formatLastVote, isPulseHot, cssPct, showsCloseUrgency } from "@/lib/pulse";
+import { useCloseRemaining } from "@/lib/usePreviewClose";
 
 function shortName(name: string) {
   return name.replace(/^Ing\.\s+/i, "");
 }
 
-export function LiveCard({ board, now }: { board: BoardData | null; now?: number }) {
+export function LiveCard({
+  board,
+  now,
+  previewCloseCountdown = false,
+}: {
+  board: BoardData | null;
+  now?: number;
+  previewCloseCountdown?: boolean;
+}) {
   const leader = board?.leadIntendente.leader;
   const lineup = (board?.candidates ?? [])
     .filter((c) => c.race === "intendente")
@@ -23,6 +33,8 @@ export function LiveCard({ board, now }: { board: BoardData | null; now?: number
   const max = Math.max(...top.map((r) => r.votes), 1);
   const hasVotes = Boolean(board && board.totalVotes > 0 && leader);
   const hot = isPulseHot(board?.lastVoteAt, now);
+  const remaining = useCloseRemaining(board?.election.closesAt, previewCloseCountdown);
+  const closing = showsCloseUrgency(remaining, previewCloseCountdown);
 
   return (
     <aside className="card min-w-0 overflow-hidden p-4 sm:p-5">
@@ -30,9 +42,19 @@ export function LiveCard({ board, now }: { board: BoardData | null; now?: number
         <p className="min-w-0 truncate text-sm text-muted">Intendencia ahora</p>
         <LiveChip hot={hot} />
       </div>
-      <p className="mono mt-1 text-[11px] text-muted">
-        {hot ? "Se está votando ahora" : formatLastVote(board?.lastVoteAt, now)}
-      </p>
+      {closing ? (
+        <div className="mt-1">
+          <CloseUrgency
+            closesAt={board?.election.closesAt}
+            preview={previewCloseCountdown}
+            className="text-[11px]"
+          />
+        </div>
+      ) : (
+        <p className="mono mt-1 text-[11px] text-muted">
+          {hot ? "Se está votando ahora" : formatLastVote(board?.lastVoteAt, now)}
+        </p>
+      )}
 
       {lineup.length ? (
         <div className="mt-4 grid grid-cols-3 gap-1.5 sm:gap-2">

@@ -18,7 +18,7 @@ export async function SiteFooter() {
           <p className="font-semibold">Transparencia</p>
           <ul className="mt-2 space-y-1 text-muted">
             <li>
-              <Link href={closed ? "/#tecnica" : "/#como-funciona"} className="hover:text-ink">
+              <Link href="/#como-funciona" className="hover:text-ink">
                 Cómo funciona
               </Link>
             </li>
@@ -28,8 +28,8 @@ export async function SiteFooter() {
               </Link>
             </li>
             <li>
-              <Link href="/resultados" className="hover:text-ink">
-                {closed ? "Resultados finales" : "Resultados en vivo"}
+              <Link href={closed ? "/" : "/resultados"} className="hover:text-ink">
+                {closed ? "El acta" : "Resultados en vivo"}
               </Link>
             </li>
           </ul>

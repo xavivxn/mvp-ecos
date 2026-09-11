@@ -35,7 +35,8 @@ yarn-error.log*
 !.env.example
 
 # padron source (PII)
-data/padron/*.md
+data/padron/
+supabase/.temp/
 
 # vercel
 .vercel

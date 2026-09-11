@@ -12,6 +12,10 @@ import { partySurface } from "@/lib/color";
 import { StatusScreen } from "./StatusScreen";
 import { groupCandidatesByParty } from "@/lib/party";
 import { sortCandidatesByVotes } from "@/lib/results";
+import { recordRecapEvent } from "@/lib/recap";
+import { CloseUrgency } from "./CloseUrgency";
+import { showsCloseUrgency } from "@/lib/pulse";
+import { useCloseRemaining } from "@/lib/usePreviewClose";
 import type { Candidate, ChoiceCount } from "@/lib/types";
 
 type Step = "verify" | "intendente" | "concejal" | "confirm" | "done";
@@ -53,6 +57,8 @@ export function VoteWizard({
   alreadyVoted,
   allowRepeatVotes = false,
   isOpen,
+  closesAt,
+  previewCloseCountdown = false,
 }: {
   intendentes: Candidate[];
   concejales: Candidate[];
@@ -60,6 +66,8 @@ export function VoteWizard({
   alreadyVoted: boolean;
   allowRepeatVotes?: boolean;
   isOpen: boolean;
+  closesAt?: string | null;
+  previewCloseCountdown?: boolean;
 }) {
   const [step, setStep] = useState<Step>(alreadyVoted ? "done" : "verify");
   const [cedula, setCedula] = useState("");
@@ -80,6 +88,8 @@ export function VoteWizard({
   const [copied, setCopied] = useState(false);
   const [rankedIntendentes, setRankedIntendentes] = useState(intendentes);
   const [rankedConcejales, setRankedConcejales] = useState(concejales);
+  const remaining = useCloseRemaining(closesAt, previewCloseCountdown);
+  const timedOut = Boolean(closesAt) && remaining <= 0 && !previewCloseCountdown;
 
   useEffect(() => {
     setRankedIntendentes(intendentes);
@@ -211,20 +221,25 @@ export function VoteWizard({
   async function share() {
     const url = window.location.origin;
     const text = "Ya dejé mi intención de voto en Ecos · Yaguarón. Sumate:";
+    recordRecapEvent("invite_share_click");
     try {
       if (navigator.share) {
         await navigator.share({ title: "Ecos Yaguarón", text, url });
+        recordRecapEvent("invite_share_native");
         return;
       }
       await navigator.clipboard.writeText(`${text} ${url}`);
+      recordRecapEvent("invite_share_copy");
       setCopied(true);
-    } catch {
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
       await navigator.clipboard.writeText(url);
+      recordRecapEvent("invite_share_copy");
       setCopied(true);
     }
   }
 
-  if (!isOpen && step !== "done") {
+  if ((!isOpen || timedOut) && step !== "done") {
     return (
       <StatusScreen
         variant="closed"
@@ -247,6 +262,12 @@ export function VoteWizard({
       {allowRepeatVotes ? (
         <p className="mb-6 rounded-xl border border-brand/20 bg-brand-soft px-4 py-3 text-sm">
           Modo ensayo: se puede votar más de una vez. El padrón sigue activo.
+        </p>
+      ) : null}
+      {showsCloseUrgency(remaining, previewCloseCountdown) && step !== "done" ? (
+        <p className="mb-6 rounded-xl border border-danger/20 bg-danger-soft px-4 py-3 text-sm">
+          <CloseUrgency closesAt={closesAt} preview={previewCloseCountdown} />
+          <span className="mt-1 block text-danger">Quedan las últimas horas para cargar tu voto.</span>
         </p>
       ) : null}
       {step !== "done" ? (

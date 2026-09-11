@@ -74,6 +74,35 @@ function rank(counts: ChoiceCount[], candidates: Candidate[], race: Candidate["r
   return rows.sort((a, b) => b.votes - a.votes || a.name.localeCompare(b.name, "es"));
 }
 
+export const JUNTA_SEATS = 12;
+
+export function competitionPlace(rows: RankedChoice[], index: number) {
+  const votes = rows[index]?.votes ?? 0;
+  return rows.filter((row) => row.votes > votes).length + 1;
+}
+
+export function splitJunta(regular: RankedChoice[], seats = JUNTA_SEATS) {
+  if (regular.length <= seats) {
+    return { inJunta: regular, outJunta: [] as RankedChoice[], tiedAtCut: false };
+  }
+
+  const cutVotes = regular[seats - 1]?.votes ?? 0;
+  const next = regular[seats];
+  const tiedAtCut = Boolean(next && next.votes === cutVotes && cutVotes > 0);
+  let end = seats;
+  if (tiedAtCut) {
+    while (end < regular.length && regular[end]?.votes === cutVotes) {
+      end += 1;
+    }
+  }
+
+  return {
+    inJunta: regular.slice(0, end),
+    outJunta: regular.slice(end),
+    tiedAtCut,
+  };
+}
+
 export function sortCandidatesByVotes(candidates: Candidate[], counts: ChoiceCount[]): Candidate[] {
   const map = new Map(counts.map((c) => [c.choice, c.votes]));
   return [...candidates].sort(

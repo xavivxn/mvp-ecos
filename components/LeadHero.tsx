@@ -5,6 +5,7 @@ import { Trophy } from "lucide-react";
 import { CandidatePhoto } from "@/components/CandidatePhoto";
 import { CountUp } from "@/components/CountUp";
 import { partySurface } from "@/lib/color";
+import { formatInt } from "@/lib/format";
 import type { BoardData, RankedChoice } from "@/lib/results";
 
 function shortName(name: string) {
@@ -16,11 +17,13 @@ export function LeadHero({
   challenger,
   compact = false,
   final = false,
+  showVotes = false,
 }: {
   lead: BoardData["leadIntendente"];
   challenger?: RankedChoice | null;
   compact?: boolean;
   final?: boolean;
+  showVotes?: boolean;
 }) {
   const leader = lead.leader;
   const [flash, setFlash] = useState(false);
@@ -61,7 +64,7 @@ export function LeadHero({
           style={{ background: leader.color }}
         >
           <Trophy className="h-3.5 w-3.5" aria-hidden />
-          {final ? "Ganó" : "Va ganando"}
+          {final ? "Lideró la encuesta" : "Va liderando"}
         </span>
         {tied ? (
           <span className="mono text-[11px] uppercase tracking-[0.12em] text-muted">Empate</span>
@@ -114,6 +117,11 @@ export function LeadHero({
                     </>
                   )}
           </p>
+          {showVotes ? (
+            <p className="mt-1 text-sm text-muted">
+              {formatInt(leader.votes)} {leader.votes === 1 ? "voto" : "votos"}
+            </p>
+          ) : null}
         </div>
       </div>
     </div>

@@ -36,6 +36,8 @@ export default async function VotarPage() {
         alreadyVoted={!allowRepeatVotes && jar.get("ecos_voted")?.value === "1"}
         allowRepeatVotes={allowRepeatVotes}
         isOpen={election?.isOpen ?? false}
+        closesAt={election?.closesAt}
+        previewCloseCountdown={env.previewCloseCountdown}
       />
     </div>
   );

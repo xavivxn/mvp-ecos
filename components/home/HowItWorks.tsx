@@ -16,16 +16,20 @@ const STEPS = [
   {
     n: "03",
     title: "Ves resultados",
+    closedTitle: "Ves el acta",
     body: "El tablero se actualiza en vivo. Una cédula, un voto. El voto es secreto.",
+    closedBody: "El acta queda fijada. Una cédula, un voto. El voto es secreto.",
     icon: ChartColumn,
   },
 ];
 
-export function HowItWorks() {
+export function HowItWorks({ final = false }: { final?: boolean }) {
   return (
     <section id="como-funciona" className="scroll-mt-20">
       <p className="mono text-xs uppercase tracking-[0.16em] text-brand-strong">Cómo funciona</p>
-      <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">Tres pasos, sin vueltas</h2>
+      <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+        {final ? "Cómo se votó" : "Tres pasos, sin vueltas"}
+      </h2>
       <div className="mt-6 grid gap-3 md:grid-cols-3">
         {STEPS.map((step) => (
           <article key={step.n} className="card p-5">
@@ -35,8 +39,12 @@ export function HowItWorks() {
               </span>
               <span className="mono text-xs text-muted">{step.n}</span>
             </div>
-            <h3 className="mt-4 font-semibold">{step.title}</h3>
-            <p className="mt-2 text-sm text-muted">{step.body}</p>
+            <h3 className="mt-4 font-semibold">
+              {final && step.closedTitle ? step.closedTitle : step.title}
+            </h3>
+            <p className="mt-2 text-sm text-muted">
+              {final && step.closedBody ? step.closedBody : step.body}
+            </p>
           </article>
         ))}
       </div>

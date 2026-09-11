@@ -184,6 +184,79 @@ body {
   animation: leader-glow 2.8s ease-in-out infinite;
 }
 
+@keyframes close-card-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--danger-soft);
+    border-color: color-mix(in srgb, var(--danger) 42%, var(--line));
+  }
+  50% {
+    box-shadow: 0 0 0 5px var(--danger-soft);
+    border-color: var(--danger);
+  }
+}
+
+@keyframes close-bar-pulse {
+  0%,
+  100% {
+    filter: brightness(1);
+    transform: scaleY(1);
+  }
+  50% {
+    filter: brightness(1.35);
+    transform: scaleY(1.85);
+  }
+}
+
+@keyframes close-clock-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.68;
+  }
+}
+
+.close-card-urgent {
+  animation: close-card-pulse 1.8s ease-in-out infinite;
+}
+
+.close-card-critical {
+  background: var(--danger-soft);
+  animation: close-card-pulse 0.9s ease-in-out infinite;
+}
+
+.close-bar-urgent {
+  transform-origin: center;
+  animation: close-bar-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes close-mini-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.55;
+    filter: brightness(1.25);
+  }
+}
+
+.close-mini-bar {
+  animation: close-mini-pulse 1.6s ease-in-out infinite;
+}
+
+.close-clock-urgent {
+  color: var(--danger);
+}
+
+.close-clock-critical {
+  color: var(--danger);
+  animation: close-clock-pulse 0.8s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
