@@ -229,10 +229,10 @@ export function VoteWizard({
       <StatusScreen
         variant="closed"
         title="La encuesta está cerrada"
-        body="En este momento no se pueden cargar más votos."
+        body="Ya no se pueden cargar más votos. El acta con el resultado final está en la portada."
         action={
-          <a href="/resultados" className="btn-primary">
-            Ver resultados
+          <a href="/" className="btn-primary">
+            Ver el acta
           </a>
         }
       />

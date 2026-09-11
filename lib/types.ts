@@ -51,6 +51,10 @@ export type RawResults = {
   votesLast24h: number;
   lastVoteAt: string | null;
   hourlyActivity: number[];
+  uniqueVoters: number;
+  padronSize: number;
+  sessionsStarted: number;
+  sessionsCompleted: number;
   uniqueVisitors: number;
   pageViews: number;
   intendente: ChoiceCount[];

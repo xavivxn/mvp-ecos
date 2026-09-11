@@ -2,13 +2,14 @@ import { VoteWizard } from "@/components/VoteWizard";
 import { rpc } from "@/lib/db";
 import { env } from "@/lib/env";
 import { sortCandidatesByVotes } from "@/lib/results";
-import type { Candidate, Election, RawResults } from "@/lib/types";
+import { getElection } from "@/lib/survey";
+import type { Candidate, RawResults } from "@/lib/types";
 import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
 export default async function VotarPage() {
-  const election = await rpc<Election | null>("app_get_active_election");
+  const election = await getElection();
   const [candidates, raw] = election
     ? await Promise.all([
         rpc<Candidate[]>("app_list_candidates", { p_election_id: election.id }),
@@ -31,7 +32,7 @@ export default async function VotarPage() {
       <VoteWizard
         intendentes={intendentes}
         concejales={concejales}
-        turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+        turnstileSiteKey={env.turnstileSiteKey}
         alreadyVoted={!allowRepeatVotes && jar.get("ecos_voted")?.value === "1"}
         allowRepeatVotes={allowRepeatVotes}
         isOpen={election?.isOpen ?? false}

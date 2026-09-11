@@ -3,13 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import type { BoardData } from "@/lib/results";
 
-export function useResultsPoll(initial: BoardData | null) {
+export function useResultsPoll(initial: BoardData | null, enabled = true) {
   const [board, setBoard] = useState(initial);
   const [age, setAge] = useState(0);
   const updatedAtRef = useRef(0);
 
   useEffect(() => {
-    if (!initial) return;
+    if (!initial || !enabled) return;
     updatedAtRef.current = Date.now();
     const poll = window.setInterval(async () => {
       try {
@@ -32,7 +32,7 @@ export function useResultsPoll(initial: BoardData | null) {
       window.clearInterval(poll);
       window.clearInterval(tick);
     };
-  }, [initial]);
+  }, [initial, enabled]);
 
   return { board, age };
 }

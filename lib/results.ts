@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { rpc } from "@/lib/db";
 import { normalizeHourlyActivity } from "@/lib/pulse";
+import { getElection } from "@/lib/survey";
 import type { Candidate, ChoiceCount, Election, RawResults } from "@/lib/types";
 
 const SPECIAL: Record<string, { name: string; party: string; color: string }> = {
@@ -25,6 +26,10 @@ export type BoardData = {
   votesLast24h: number;
   lastVoteAt: string | null;
   hourlyActivity: number[];
+  uniqueVoters: number;
+  padronSize: number;
+  sessionsStarted: number;
+  sessionsCompleted: number;
   uniqueVisitors: number;
   pageViews: number;
   conversion: number;
@@ -87,7 +92,7 @@ function lead(rows: RankedChoice[]) {
 }
 
 export const getBoard = cache(async function getBoard(): Promise<BoardData | null> {
-  const election = await rpc<Election | null>("app_get_active_election");
+  const election = await getElection();
   if (!election) return null;
 
   const [candidates, raw] = await Promise.all([
@@ -105,6 +110,10 @@ export const getBoard = cache(async function getBoard(): Promise<BoardData | nul
     votesLast24h: raw.votesLast24h,
     lastVoteAt: typeof raw.lastVoteAt === "string" ? raw.lastVoteAt : raw.lastVoteAt ? String(raw.lastVoteAt) : null,
     hourlyActivity: normalizeHourlyActivity(raw.hourlyActivity),
+    uniqueVoters: raw.uniqueVoters ?? 0,
+    padronSize: raw.padronSize ?? 0,
+    sessionsStarted: raw.sessionsStarted ?? 0,
+    sessionsCompleted: raw.sessionsCompleted ?? 0,
     uniqueVisitors: raw.uniqueVisitors,
     pageViews: raw.pageViews,
     conversion: raw.uniqueVisitors ? (raw.totalVotes / raw.uniqueVisitors) * 100 : 0,

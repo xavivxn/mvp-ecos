@@ -15,10 +15,12 @@ export function LeadHero({
   lead,
   challenger,
   compact = false,
+  final = false,
 }: {
   lead: BoardData["leadIntendente"];
   challenger?: RankedChoice | null;
   compact?: boolean;
+  final?: boolean;
 }) {
   const leader = lead.leader;
   const [flash, setFlash] = useState(false);
@@ -43,9 +45,9 @@ export function LeadHero({
 
   return (
     <div
-      className={`leader-glow relative overflow-hidden rounded-2xl border-2 p-4 sm:p-5 ${
-        flash ? "leader-flash" : ""
-      } ${compact ? "" : "sm:p-6"}`}
+      className={`relative overflow-hidden rounded-2xl border-2 p-4 sm:p-5 ${
+        final ? "" : "leader-glow"
+      } ${flash && !final ? "leader-flash" : ""} ${compact ? "" : "sm:p-6"}`}
       style={partySurface(leader.color, true)}
     >
       <div
@@ -59,7 +61,7 @@ export function LeadHero({
           style={{ background: leader.color }}
         >
           <Trophy className="h-3.5 w-3.5" aria-hidden />
-          Va ganando
+          {final ? "Ganó" : "Va ganando"}
         </span>
         {tied ? (
           <span className="mono text-[11px] uppercase tracking-[0.12em] text-muted">Empate</span>

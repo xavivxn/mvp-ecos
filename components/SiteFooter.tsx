@@ -1,6 +1,10 @@
 import Link from "next/link";
+import { getElection } from "@/lib/survey";
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const election = await getElection();
+  const closed = Boolean(election && !election.isOpen);
+
   return (
     <footer className="border-t border-line bg-surface">
       <div className="mx-auto grid max-w-5xl gap-8 px-4 py-10 text-sm md:grid-cols-3">
@@ -14,18 +18,18 @@ export function SiteFooter() {
           <p className="font-semibold">Transparencia</p>
           <ul className="mt-2 space-y-1 text-muted">
             <li>
-              <Link href="/#como-funciona" className="hover:text-ink">
+              <Link href={closed ? "/#tecnica" : "/#como-funciona"} className="hover:text-ink">
                 Cómo funciona
               </Link>
             </li>
             <li>
-              <Link href="/#transparencia" className="hover:text-ink">
+              <Link href={closed ? "/#tecnica" : "/#transparencia"} className="hover:text-ink">
                 Qué guardamos
               </Link>
             </li>
             <li>
               <Link href="/resultados" className="hover:text-ink">
-                Resultados en vivo
+                {closed ? "Resultados finales" : "Resultados en vivo"}
               </Link>
             </li>
           </ul>
