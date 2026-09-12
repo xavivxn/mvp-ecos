@@ -7,9 +7,11 @@ import { isClosingWindow, msUntil } from "@/lib/pulse";
 export function SurveyPhaseWatcher({
   initiallyOpen,
   initiallyClosing,
+  disabled = false,
 }: {
   initiallyOpen: boolean;
   initiallyClosing: boolean;
+  disabled?: boolean;
 }) {
   const router = useRouter();
   const openRef = useRef(initiallyOpen);
@@ -21,7 +23,7 @@ export function SurveyPhaseWatcher({
   }, [initiallyClosing, initiallyOpen]);
 
   useEffect(() => {
-    if (!initiallyOpen) return;
+    if (disabled || !initiallyOpen) return;
 
     const poll = async () => {
       try {
@@ -55,7 +57,7 @@ export function SurveyPhaseWatcher({
       window.clearInterval(id);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [initiallyOpen, router]);
+  }, [disabled, initiallyOpen, router]);
 
   return null;
 }

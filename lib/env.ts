@@ -56,8 +56,12 @@ export const env = {
     if (value !== "true" && value !== "1") return false;
     return process.env.VERCEL_ENV !== "production";
   },
+  /** Simula las últimas 24 h en 1 minuto. Solo local/preview; en production se ignora. */
   get previewCloseCountdown() {
-    const value = process.env.PREVIEW_CLOSE_COUNTDOWN?.trim().toLowerCase();
+    const raw =
+      process.env.PREVIEW_CLOSE_COUNTDOWN?.trim() ||
+      process.env.SIMULATE_LAST_24H?.trim();
+    const value = raw?.toLowerCase();
     if (value !== "true" && value !== "1") return false;
     return process.env.VERCEL_ENV !== "production";
   },

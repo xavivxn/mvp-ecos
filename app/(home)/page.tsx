@@ -7,18 +7,20 @@ import { HowItWorks } from "@/components/home/HowItWorks";
 import { Transparency } from "@/components/home/Transparency";
 import { AboutProject } from "@/components/home/AboutProject";
 import { StickyCta } from "@/components/home/StickyCta";
+import { ClosingHero } from "@/components/home/ClosingHero";
 import { RecapHome } from "@/components/recap/RecapHome";
 import { RecapHomeSkeleton } from "@/components/recap/RecapSkeletons";
 import { recapShare } from "@/lib/recap";
 import { getBoard } from "@/lib/results";
 import { getElection } from "@/lib/survey";
+import { env } from "@/lib/env";
 import { isClosingWindow, msUntil } from "@/lib/pulse";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   const election = await getElection();
-  if (election && !election.isOpen) {
+  if (election && !election.isOpen && !env.previewCloseCountdown) {
     return {
       title: recapShare.title,
       description: recapShare.description,
@@ -42,18 +44,24 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-function HomeHero({ closing = false }: { closing?: boolean }) {
+function HomeHero({
+  closing = false,
+  closesAt,
+  preview = false,
+}: {
+  closing?: boolean;
+  closesAt?: string | null;
+  preview?: boolean;
+}) {
+  if (closing && closesAt) {
+    return <ClosingHero closesAt={closesAt} preview={preview} />;
+  }
+
   return (
     <div className="min-w-0">
-      {closing ? (
-        <p className="chip bg-danger-soft text-danger">
-          <span className="mono">Últimas 24 horas para votar</span>
-        </p>
-      ) : (
-        <p className="chip bg-brand-soft text-brand-strong">
-          <span className="mono">Elecciones Municipales 2026 · Yaguarón</span>
-        </p>
-      )}
+      <p className="chip bg-brand-soft text-brand-strong">
+        <span className="mono">Elecciones Municipales 2026 · Yaguarón</span>
+      </p>
       <h1 className="mt-4 max-w-xl text-4xl font-semibold tracking-tight sm:text-5xl">
         Encuesta de Ecos Yaguarón.
       </h1>
@@ -75,17 +83,19 @@ function HomeHero({ closing = false }: { closing?: boolean }) {
 
 async function HomeSwitch() {
   const board = await getBoard();
-  if (board && !board.election.isOpen) {
+  const preview = env.previewCloseCountdown;
+  if (board && !board.election.isOpen && !preview) {
     return <RecapHome board={board} />;
   }
-
-  const closing = board ? isClosingWindow(msUntil(board.election.closesAt)) : false;
+  const closing = Boolean(
+    board && (preview || isClosingWindow(msUntil(board.election.closesAt))),
+  );
 
   return (
     <div className="pb-24 md:pb-0">
       <section className="mx-auto max-w-5xl px-4 pb-12 pt-10">
         <HomeLiveCard>
-          <HomeHero closing={closing} />
+          <HomeHero closing={closing} closesAt={board?.election.closesAt} preview={preview} />
         </HomeLiveCard>
       </section>
 
@@ -117,7 +127,7 @@ function OpenHomeFallback() {
 
 export default async function HomePage() {
   const election = await getElection();
-  const closed = Boolean(election && !election.isOpen);
+  const closed = Boolean(election && !election.isOpen && !env.previewCloseCountdown);
 
   return (
     <Suspense fallback={closed ? <RecapHomeSkeleton /> : <OpenHomeFallback />}>

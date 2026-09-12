@@ -144,8 +144,6 @@ function RecapStorySkeleton() {
         <Skeleton className="mt-2 h-8 w-72 max-w-full sm:h-9" />
         <Skeleton className="mt-3 h-4 w-full max-w-2xl" />
         <Skeleton className="mt-1 h-4 w-4/5 max-w-xl" />
-        <Skeleton className="mt-6 h-4 w-full max-w-2xl" />
-        <Skeleton className="mt-1 h-4 w-2/3 max-w-lg" />
       </div>
     </section>
   );

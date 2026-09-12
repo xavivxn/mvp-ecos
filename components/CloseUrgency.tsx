@@ -1,14 +1,14 @@
 "use client";
 
+import { ClockDigits } from "@/components/ClockDigits";
 import {
   closePulseDuration,
   closeSrLabel,
   closeTint,
   closeUrgencyHeat,
+  closeTimeLeftPct,
   cssPct,
-  DAY_MS,
-  formatRemainingClock,
-  HOUR_MS,
+  isCloseCritical,
 } from "@/lib/pulse";
 import { useCloseRemaining } from "@/lib/usePreviewClose";
 
@@ -27,17 +27,27 @@ export function CloseUrgency({
   const value = preview || closesAt ? live : (remaining ?? 0);
   const ended = value <= 0;
   const heat = closeUrgencyHeat(value);
-  const critical = value > 0 && value <= 3 * HOUR_MS;
-  const leftPct = ended ? 0 : (value / DAY_MS) * 100;
+  const critical = isCloseCritical(value);
+  const leftPct = closeTimeLeftPct(value);
 
   return (
     <span className={`inline-flex min-w-0 max-w-full items-center gap-2 ${className}`}>
       <span
-        className={`mono min-w-0 truncate tabular-nums ${critical ? "close-clock-critical" : ""}`}
+        className={`min-w-0 truncate ${critical ? "close-clock-critical" : ""}`}
         style={{ color: closeTint(heat) }}
-        aria-hidden
       >
-        {ended ? "Cerró" : `Cierra en ${formatRemainingClock(value)}`}
+        {ended ? (
+          <span className="mono tabular-nums" aria-hidden>
+            Cerró
+          </span>
+        ) : (
+          <>
+            <span className="mono" aria-hidden>
+              Cierra en{" "}
+            </span>
+            <ClockDigits remaining={value} />
+          </>
+        )}
       </span>
       <span className="sr-only">{closeSrLabel(value)}</span>
       <span

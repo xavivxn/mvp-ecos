@@ -87,10 +87,6 @@ export function RecapStory() {
           Cada voto fue secreto y contó una sola vez. Gracias a quienes se tomaron el tiempo
           de verificar el padrón y cargar su intención.
         </p>
-        <p className="mt-6 max-w-2xl text-muted">
-          Acá se midió una intención, con un voto por persona y en secreto. El 4 de octubre
-          toca lo mismo, pero de verdad: ir, votar, y dejar que el pueblo decida.
-        </p>
       </div>
     </section>
   );

@@ -14,7 +14,7 @@ import { groupCandidatesByParty } from "@/lib/party";
 import { sortCandidatesByVotes } from "@/lib/results";
 import { recordRecapEvent } from "@/lib/recap";
 import { CloseUrgency } from "./CloseUrgency";
-import { showsCloseUrgency } from "@/lib/pulse";
+import { isCloseCritical, showsCloseUrgency } from "@/lib/pulse";
 import { useCloseRemaining } from "@/lib/usePreviewClose";
 import type { Candidate, ChoiceCount } from "@/lib/types";
 
@@ -265,9 +265,19 @@ export function VoteWizard({
         </p>
       ) : null}
       {showsCloseUrgency(remaining, previewCloseCountdown) && step !== "done" ? (
-        <p className="mb-6 rounded-xl border border-danger/20 bg-danger-soft px-4 py-3 text-sm">
+        <p
+          className={`mb-6 rounded-xl bg-danger-soft text-sm ${
+            isCloseCritical(remaining)
+              ? "border-2 border-danger px-4 py-4"
+              : "border border-danger/20 px-4 py-3"
+          }`}
+        >
           <CloseUrgency closesAt={closesAt} preview={previewCloseCountdown} />
-          <span className="mt-1 block text-danger">Quedan las últimas horas para cargar tu voto.</span>
+          <span className="mt-1 block text-danger">
+            {isCloseCritical(remaining)
+              ? "Cierra ahora. Cargá tu voto."
+              : "Quedan las últimas horas para cargar tu voto."}
+          </span>
         </p>
       ) : null}
       {step !== "done" ? (

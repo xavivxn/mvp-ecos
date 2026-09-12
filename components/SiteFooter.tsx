@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
+import { env } from "@/lib/env";
 import { getElection } from "@/lib/survey";
 
 export async function SiteFooter() {
   const election = await getElection();
-  const closed = Boolean(election && !election.isOpen);
+  const closed = Boolean(election && !election.isOpen && !env.previewCloseCountdown);
 
   return (
     <footer className="border-t border-line bg-surface">
@@ -13,6 +15,7 @@ export async function SiteFooter() {
           <p className="mt-2 text-muted">
             Proyecto ciudadano independiente, hecho en Yaguarón.
           </p>
+          <ThemeSwitch />
         </div>
         <div>
           <p className="font-semibold">Transparencia</p>

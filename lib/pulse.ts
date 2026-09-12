@@ -24,6 +24,8 @@ export function formatLastVote(lastVoteAt: string | null | undefined, now = Date
 
 export const DAY_MS = 86_400_000;
 export const HOUR_MS = 3_600_000;
+export const CLOSE_TENSE_MS = 6 * HOUR_MS;
+export const CLOSE_CRITICAL_MS = 3 * HOUR_MS;
 
 function pad2(n: number) {
   return String(n).padStart(2, "0");
@@ -41,6 +43,33 @@ export function msUntil(iso: string, now = Date.now()) {
 
 export function isClosingWindow(msRemaining: number) {
   return msRemaining > 0 && msRemaining <= DAY_MS;
+}
+
+export function isCloseTense(msRemaining: number) {
+  return msRemaining > 0 && msRemaining <= CLOSE_TENSE_MS;
+}
+
+export function isCloseCritical(msRemaining: number) {
+  return msRemaining > 0 && msRemaining <= CLOSE_CRITICAL_MS;
+}
+
+export function closeStageHint(msRemaining: number) {
+  if (msRemaining <= 0) return "encuesta cerrada";
+  if (!isClosingWindow(msRemaining)) return "para el cierre";
+  if (isCloseCritical(msRemaining)) return "cierra ahora";
+  if (isCloseTense(msRemaining)) return "últimas horas";
+  return "se acaba hoy";
+}
+
+export function closeVoteCta(msRemaining: number) {
+  if (isCloseCritical(msRemaining)) return "Cerrar mi voto ahora";
+  if (isClosingWindow(msRemaining)) return "Últimas horas · Cargar mi voto";
+  return "Cargar mi voto";
+}
+
+export function closeHeaderCta(msRemaining: number) {
+  if (isCloseCritical(msRemaining)) return "Votar ahora";
+  return "Votar";
 }
 
 export function closeHeat(msRemaining: number) {
@@ -69,11 +98,27 @@ export function showsCloseUrgency(remaining: number | null | undefined, preview 
   return isClosingWindow(remaining);
 }
 
+export function closeAtmosphereStage(
+  remaining: number,
+  preview = false,
+  closed = false,
+) {
+  if (closed || (!preview && remaining <= 0)) return "recap";
+  if (isCloseCritical(remaining)) return "critical";
+  if (isCloseTense(remaining)) return "tense";
+  if (preview || isClosingWindow(remaining)) return "day";
+  return "open";
+}
+
 export function closeSrLabel(remaining: number) {
   if (remaining <= 0) return "La encuesta cerró.";
-  if (remaining <= HOUR_MS) {
-    const mins = Math.max(1, Math.ceil(remaining / 60_000));
-    return mins === 1 ? "Cierra ahora, queda 1 minuto." : `Cierra ahora, quedan ${mins} minutos.`;
+  if (remaining <= CLOSE_CRITICAL_MS) {
+    if (remaining <= HOUR_MS) {
+      const mins = Math.max(1, Math.ceil(remaining / 60_000));
+      return mins === 1 ? "Cierra ahora, queda 1 minuto." : `Cierra ahora, quedan ${mins} minutos.`;
+    }
+    const hours = Math.max(1, Math.ceil(remaining / HOUR_MS));
+    return hours === 1 ? "Cierra ahora, queda 1 hora." : `Cierra ahora, quedan ${hours} horas.`;
   }
   const hours = Math.max(1, Math.ceil(remaining / HOUR_MS));
   return hours === 1 ? "Cierra hoy, queda 1 hora." : `Cierra hoy, quedan ${hours} horas.`;
@@ -117,6 +162,12 @@ export function todaySharePct(votesLast24h: number, totalVotes: number) {
 export function boardNow(generatedAt: string | undefined, age = 0) {
   const base = generatedAt ? Date.parse(generatedAt) : NaN;
   return Number.isFinite(base) ? base + age * 1000 : 0;
+}
+
+export function closeTimeLeftPct(remaining: number) {
+  if (remaining <= 0) return 0;
+  if (remaining >= DAY_MS) return 100;
+  return (remaining / DAY_MS) * 100;
 }
 
 export function cssPct(value: number, min = 0) {

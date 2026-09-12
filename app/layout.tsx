@@ -1,10 +1,12 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { CloseAtmosphere } from "@/components/CloseAtmosphere";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { VisitBeacon } from "@/components/VisitBeacon";
 import { PhaseGate } from "@/components/PhaseGate";
+import { THEME_BOOT_SCRIPT } from "@/lib/theme";
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -48,12 +50,18 @@ export const dynamic = "force-dynamic";
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html
+      lang="es"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
       <body className="flex min-h-full flex-col bg-bg text-ink">
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+        <CloseAtmosphere />
         <VisitBeacon />
         <PhaseGate />
         <SiteHeader />
-        <main className="flex-1">{children}</main>
+        <main className="relative z-10 flex-1">{children}</main>
         <SiteFooter />
       </body>
     </html>

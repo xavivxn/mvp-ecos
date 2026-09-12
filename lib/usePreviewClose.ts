@@ -9,22 +9,25 @@ import {
   previewCloseRemaining,
 } from "@/lib/pulse";
 
+let sharedPreviewStartedAt: number | null = null;
+
+function sharedPreviewStart(now = Date.now()) {
+  if (sharedPreviewStartedAt == null) sharedPreviewStartedAt = now;
+  const cycle = PREVIEW_CLOSE_REAL_MS + PREVIEW_CLOSE_PAUSE_MS;
+  if (now - sharedPreviewStartedAt >= cycle) {
+    sharedPreviewStartedAt = now;
+  }
+  return sharedPreviewStartedAt;
+}
+
 export function usePreviewRemaining(enabled: boolean) {
   const [remaining, setRemaining] = useState(DAY_MS);
 
   useEffect(() => {
     if (!enabled) return;
-    let startedAt = Date.now();
     let frame = 0;
     const tick = () => {
-      const elapsed = Date.now() - startedAt;
-      const cycle = PREVIEW_CLOSE_REAL_MS + PREVIEW_CLOSE_PAUSE_MS;
-      if (elapsed >= cycle) {
-        startedAt = Date.now();
-        setRemaining(DAY_MS);
-      } else {
-        setRemaining(previewCloseRemaining(startedAt));
-      }
+      setRemaining(previewCloseRemaining(sharedPreviewStart()));
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);

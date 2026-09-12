@@ -17,7 +17,7 @@ export default async function ResultadosPage() {
     );
   }
 
-  const closed = !board.election.isOpen;
+  const closed = !board.election.isOpen && !env.previewCloseCountdown;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">

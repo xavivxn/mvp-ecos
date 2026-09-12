@@ -72,7 +72,7 @@ La encuesta sigue abierta mientras `now() <= elections.closes_at` (16 sep 2026, 
 - Últimas 24 horas: reloj, chip “Últimas 24 horas” y aviso en `/votar`. Sale solo.
 - Después del cierre: la home pasa al acta, `/votar` deja de aceptar votos, el OG se actualiza sin redesplegar.
 
-No pongas `FORCE_SURVEY_CLOSED` ni `PREVIEW_CLOSE_COUNTDOWN` en Vercel Production: se ignoran ahí. Sirven solo para preview/local.
+No pongas `FORCE_SURVEY_CLOSED` ni `PREVIEW_CLOSE_COUNTDOWN` en Vercel Production: se ignoran ahí. Sirven solo para preview/local. `PREVIEW_CLOSE_COUNTDOWN=true` comprime las últimas 24 h en 1 minuto (aunque el acta ya esté cerrada) para probar el último día.
 
 ## Lanzamiento con candidatos reales
 

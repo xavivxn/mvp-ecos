@@ -4,29 +4,19 @@ import { CountUp } from "@/components/CountUp";
 import {
   closePulseDuration,
   closeSrLabel,
+  closeStageHint,
+  closeTimeLeftPct,
   closeUrgencyHeat,
   cssPct,
   DAY_MS,
   elapsedAtRemaining,
-  formatRemainingClock,
-  HOUR_MS,
+  isCloseCritical,
   isClosingWindow,
   todaySharePct,
 } from "@/lib/pulse";
 import { useCloseRemaining } from "@/lib/usePreviewClose";
 import type { BoardData } from "@/lib/results";
-
-function shortName(name: string) {
-  return name.replace(/^(Ing\.|Prof\.|Profe\.)\s+/i, "");
-}
-
-function closeHint(remaining: number, closing: boolean) {
-  if (remaining <= 0) return "encuesta cerrada";
-  if (!closing) return "para el cierre";
-  if (remaining <= HOUR_MS) return "cierra ahora";
-  if (remaining <= 3 * HOUR_MS) return "últimas horas";
-  return "se acaba hoy";
-}
+import { shortName } from "@/lib/format";
 
 function CloseStat({
   opensAt,
@@ -39,11 +29,14 @@ function CloseStat({
 }) {
   const remaining = useCloseRemaining(closesAt, preview);
   const days = Math.max(0, Math.ceil(remaining / DAY_MS));
-  const elapsed = elapsedAtRemaining(opensAt, closesAt, remaining);
+  const elapsed = preview
+    ? closeTimeLeftPct(remaining)
+    : elapsedAtRemaining(opensAt, closesAt, remaining);
   const closing = isClosingWindow(remaining);
-  const critical = remaining > 0 && remaining <= 3 * HOUR_MS;
+  const critical = isCloseCritical(remaining);
   const heat = closeUrgencyHeat(remaining);
   const pulse = closePulseDuration(remaining);
+  const hint = closeStageHint(remaining);
 
   return (
     <div
@@ -52,27 +45,23 @@ function CloseStat({
       }`}
     >
       <div className="flex items-center justify-between gap-2">
-        <p className="mono text-[11px] uppercase tracking-[0.14em] text-muted">Cierra en</p>
+        <p className="mono text-[11px] uppercase tracking-[0.14em] text-muted">
+          {closing ? "Hoy cierra" : "Cierra en"}
+        </p>
         {preview ? (
           <span className="mono text-[9px] uppercase tracking-[0.12em] text-danger">preview</span>
         ) : null}
       </div>
       <p
-        className={`mt-2 text-2xl font-semibold tracking-tight ${
-          remaining <= 0
-            ? ""
-            : critical
-              ? "close-clock-critical mono tabular-nums"
-              : closing
-                ? "close-clock-urgent mono tabular-nums text-[1.35rem] sm:text-2xl"
-                : ""
-        }`}
+        className={`mt-2 font-semibold tracking-tight ${
+          closing ? "text-base" : "text-2xl"
+        } ${critical ? "text-danger" : ""}`}
         aria-hidden={closing}
       >
         {remaining <= 0 ? (
           "Cerró"
         ) : closing ? (
-          formatRemainingClock(remaining)
+          hint
         ) : (
           <CountUp value={days} digits={0} suffix={days === 1 ? " día" : " días"} />
         )}
@@ -93,7 +82,7 @@ function CloseStat({
         />
       </div>
       <p className={`mt-1 truncate text-xs ${critical ? "font-medium text-danger" : "text-muted"}`}>
-        {closeHint(remaining, closing)}
+        {closing ? "todavía entra tu voto" : hint}
       </p>
     </div>
   );

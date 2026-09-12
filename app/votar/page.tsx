@@ -35,7 +35,7 @@ export default async function VotarPage() {
         turnstileSiteKey={env.turnstileSiteKey}
         alreadyVoted={!allowRepeatVotes && jar.get("ecos_voted")?.value === "1"}
         allowRepeatVotes={allowRepeatVotes}
-        isOpen={election?.isOpen ?? false}
+        isOpen={(election?.isOpen ?? false) || env.previewCloseCountdown}
         closesAt={election?.closesAt}
         previewCloseCountdown={env.previewCloseCountdown}
       />

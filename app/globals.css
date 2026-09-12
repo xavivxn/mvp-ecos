@@ -16,7 +16,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.theme-light) {
     --bg: #0b1f17;
     --surface: #10291f;
     --surface-2: #163326;
@@ -30,6 +30,26 @@
     --danger-soft: rgba(249, 112, 102, 0.16);
     --on-brand: #0b1f17;
   }
+}
+
+html.theme-dark {
+  color-scheme: dark;
+  --bg: #0b1f17;
+  --surface: #10291f;
+  --surface-2: #163326;
+  --ink: #eaf5ee;
+  --muted: #9db5a8;
+  --line: rgba(234, 245, 238, 0.12);
+  --brand: #3dcb7e;
+  --brand-strong: #6ee7a2;
+  --brand-soft: rgba(61, 203, 126, 0.14);
+  --danger: #f97066;
+  --danger-soft: rgba(249, 112, 102, 0.16);
+  --on-brand: #0b1f17;
+}
+
+html.theme-light {
+  color-scheme: light;
 }
 
 @theme inline {
@@ -255,6 +275,380 @@ body {
 .close-clock-critical {
   color: var(--danger);
   animation: close-clock-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes clock-tick {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.clock-tick {
+  animation: clock-tick 200ms ease-out;
+}
+
+.close-cta-ring {
+  box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
+.close-atmosphere {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.close-atmosphere-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(92px);
+  transition:
+    background 1.6s ease,
+    filter 1.6s ease;
+}
+
+.close-atmosphere-orb-a {
+  top: -18%;
+  left: -12%;
+  width: min(58vw, 42rem);
+  height: min(58vw, 42rem);
+  background: color-mix(in srgb, var(--brand-soft) 55%, transparent);
+  animation: close-orb-a 26s ease-in-out infinite;
+}
+
+.close-atmosphere-orb-b {
+  right: -10%;
+  bottom: -22%;
+  width: min(48vw, 36rem);
+  height: min(48vw, 36rem);
+  background: color-mix(in srgb, var(--brand-soft) 35%, transparent);
+  animation: close-orb-b 32s ease-in-out infinite;
+}
+
+.close-atmosphere-orb-c {
+  display: none;
+}
+
+.close-atmosphere-open .close-atmosphere-orb-a {
+  background: color-mix(in srgb, var(--brand-soft) 36%, transparent);
+  animation-duration: 34s;
+}
+
+.close-atmosphere-open .close-atmosphere-orb-b {
+  background: color-mix(in srgb, var(--brand-soft) 22%, transparent);
+  animation-duration: 42s;
+}
+
+.close-atmosphere-recap .close-atmosphere-orb-a {
+  background: color-mix(in srgb, var(--brand-soft) 26%, transparent);
+  animation-name: close-orb-a-recap;
+  animation-duration: 48s;
+}
+
+.close-atmosphere-recap .close-atmosphere-orb-b {
+  background: color-mix(in srgb, var(--surface-2) 55%, var(--brand-soft) 20%);
+  animation-name: close-orb-b-recap;
+  animation-duration: 60s;
+}
+
+.close-atmosphere-tense .close-atmosphere-orb-b {
+  background: color-mix(in srgb, var(--danger-soft) 50%, transparent);
+}
+
+.close-atmosphere-critical .close-atmosphere-orb-a {
+  background: color-mix(in srgb, var(--danger-soft) 28%, var(--brand-soft) 32%);
+}
+
+.close-atmosphere-critical .close-atmosphere-orb-b {
+  background: color-mix(in srgb, var(--danger-soft) 62%, transparent);
+}
+
+.close-atmosphere-tense .close-atmosphere-orb-c {
+  background: color-mix(in srgb, var(--danger-soft) 42%, transparent);
+}
+
+.close-atmosphere-critical .close-atmosphere-orb-c {
+  background: color-mix(in srgb, var(--danger-soft) 48%, var(--brand-soft) 22%);
+}
+
+.close-atmosphere-tense .close-atmosphere-orb-a,
+.close-atmosphere-tense .close-atmosphere-orb-b,
+.close-atmosphere-critical .close-atmosphere-orb-a,
+.close-atmosphere-critical .close-atmosphere-orb-b {
+  animation-duration: 16s;
+}
+
+.close-atmosphere-critical .close-atmosphere-orb-a,
+.close-atmosphere-critical .close-atmosphere-orb-b {
+  animation-duration: 11s;
+}
+
+@keyframes close-orb-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.42;
+  }
+  50% {
+    transform: translate(3%, 5%) scale(1.06);
+    opacity: 0.72;
+  }
+}
+
+@keyframes close-orb-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.32;
+  }
+  50% {
+    transform: translate(-4%, -3%) scale(1.08);
+    opacity: 0.6;
+  }
+}
+
+@keyframes close-orb-a-recap {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.26;
+  }
+  50% {
+    transform: translate(2%, 3%) scale(1.03);
+    opacity: 0.46;
+  }
+}
+
+@keyframes close-orb-b-recap {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translate(-2%, -2%) scale(1.04);
+    opacity: 0.38;
+  }
+}
+
+@keyframes close-orb-c {
+  0%,
+  100% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(-50%, 6%) scale(1.1);
+    opacity: 0.85;
+  }
+}
+
+@keyframes close-wash-mobile {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 767px) {
+  .close-atmosphere::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      130% 72% at 50% 16%,
+      color-mix(in srgb, var(--brand) 28%, transparent),
+      transparent 72%
+    );
+    animation: close-wash-mobile 12s ease-in-out infinite;
+    transition: background 1.6s ease;
+  }
+
+  .close-atmosphere-open::before {
+    background: radial-gradient(
+      130% 72% at 50% 16%,
+      color-mix(in srgb, var(--brand) 16%, transparent),
+      transparent 74%
+    );
+    animation-duration: 18s;
+  }
+
+  .close-atmosphere-recap::before {
+    background: radial-gradient(
+      130% 72% at 50% 16%,
+      color-mix(in srgb, var(--brand) 10%, transparent),
+      transparent 76%
+    );
+    animation-duration: 24s;
+  }
+
+  .close-atmosphere-tense::before {
+    background: radial-gradient(
+      130% 72% at 50% 16%,
+      color-mix(in srgb, var(--danger) 18%, var(--brand) 16%),
+      transparent 72%
+    );
+  }
+
+  .close-atmosphere-critical::before {
+    background: radial-gradient(
+      130% 72% at 50% 16%,
+      color-mix(in srgb, var(--danger) 26%, var(--brand) 10%),
+      transparent 72%
+    );
+    animation-duration: 8s;
+  }
+
+  .close-atmosphere-orb {
+    filter: blur(38px);
+  }
+
+  .close-atmosphere-orb-a {
+    top: -6%;
+    left: -28%;
+    width: 96vmin;
+    height: 96vmin;
+    background: color-mix(in srgb, var(--brand) 38%, transparent);
+    animation-name: close-orb-a-mobile;
+    animation-duration: 18s;
+  }
+
+  .close-atmosphere-orb-b {
+    right: -24%;
+    bottom: 22%;
+    width: 88vmin;
+    height: 88vmin;
+    background: color-mix(in srgb, var(--brand) 28%, transparent);
+    animation-name: close-orb-b-mobile;
+    animation-duration: 22s;
+  }
+
+  .close-atmosphere-orb-c {
+    display: block;
+    top: 8%;
+    left: 50%;
+    width: 120vmin;
+    height: 78vmin;
+    background: color-mix(in srgb, var(--brand) 24%, transparent);
+    animation: close-orb-c 14s ease-in-out infinite;
+  }
+
+  .close-atmosphere-tense .close-atmosphere-orb-a {
+    background: color-mix(in srgb, var(--brand) 22%, var(--danger) 18%);
+  }
+
+  .close-atmosphere-tense .close-atmosphere-orb-b,
+  .close-atmosphere-tense .close-atmosphere-orb-c {
+    background: color-mix(in srgb, var(--danger) 28%, transparent);
+  }
+
+  .close-atmosphere-critical .close-atmosphere-orb-a {
+    background: color-mix(in srgb, var(--danger) 24%, var(--brand) 16%);
+  }
+
+  .close-atmosphere-critical .close-atmosphere-orb-b,
+  .close-atmosphere-critical .close-atmosphere-orb-c {
+    background: color-mix(in srgb, var(--danger) 34%, transparent);
+  }
+
+  .close-atmosphere-tense .close-atmosphere-orb-a,
+  .close-atmosphere-tense .close-atmosphere-orb-b,
+  .close-atmosphere-tense .close-atmosphere-orb-c {
+    animation-duration: 12s;
+  }
+
+  .close-atmosphere-critical .close-atmosphere-orb-a,
+  .close-atmosphere-critical .close-atmosphere-orb-b,
+  .close-atmosphere-critical .close-atmosphere-orb-c {
+    animation-duration: 8s;
+  }
+
+  .close-atmosphere-open .close-atmosphere-orb-a {
+    background: color-mix(in srgb, var(--brand) 22%, transparent);
+    animation-duration: 24s;
+  }
+
+  .close-atmosphere-open .close-atmosphere-orb-b {
+    background: color-mix(in srgb, var(--brand) 16%, transparent);
+    animation-duration: 28s;
+  }
+
+  .close-atmosphere-open .close-atmosphere-orb-c {
+    background: color-mix(in srgb, var(--brand) 14%, transparent);
+    animation-duration: 20s;
+  }
+
+  .close-atmosphere-recap .close-atmosphere-orb-a {
+    background: color-mix(in srgb, var(--brand) 14%, transparent);
+    animation-name: close-orb-a-mobile-recap;
+    animation-duration: 32s;
+  }
+
+  .close-atmosphere-recap .close-atmosphere-orb-b {
+    background: color-mix(in srgb, var(--brand) 10%, transparent);
+    animation-name: close-orb-b-mobile-recap;
+    animation-duration: 38s;
+  }
+
+  .close-atmosphere-recap .close-atmosphere-orb-c {
+    background: color-mix(in srgb, var(--brand) 9%, transparent);
+    animation-duration: 28s;
+  }
+}
+
+@keyframes close-orb-a-mobile {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.62;
+  }
+  50% {
+    transform: translate(10%, 12%) scale(1.14);
+    opacity: 0.95;
+  }
+}
+
+@keyframes close-orb-b-mobile {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(-10%, -8%) scale(1.16);
+    opacity: 0.88;
+  }
+}
+
+@keyframes close-orb-a-mobile-recap {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translate(5%, 6%) scale(1.06);
+    opacity: 0.62;
+  }
+}
+
+@keyframes close-orb-b-mobile-recap {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.32;
+  }
+  50% {
+    transform: translate(-5%, -4%) scale(1.07);
+    opacity: 0.52;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
